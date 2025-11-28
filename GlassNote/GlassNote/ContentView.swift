@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct ContentView: View {
+    @State private var isStartMemo = false
+    
     var body: some View {
         ZStack {
             
@@ -39,14 +41,27 @@ struct ContentView: View {
                 .padding(.horizontal, 32)
                 
                 // ★ 시작 버튼 (Glass 버튼 스타일)
+//                GlassToolButton(
+//                    systemName: "arrow.right.circle.fill",
+//                    title: "Start Note",
+//                    isSelected: isStartMemo
+//                ) {
+//                    isStartMemo.toggle()
+//                }
                 GlassToolButton(
-                    systemName: "arrow.right.circle.fill",
-                    title: "Start Note",
-                    isSelected: true
-                ) {
-                    // TODO: 메인 편집 화면으로 이동
-                }
+                                    systemName: "arrow.right.circle.fill",
+                                    title: "Start Note",
+                                    isSelected: true
+                                ) {
+                                    isStartMemo = true
+                                }
+                                .fullScreenCover(isPresented: $isStartMemo) {
+                                    
+                                }
             }
+        }
+        .fullScreenCover(isPresented: $isStartMemo) {
+            DrawView()
         }
     }
 }
