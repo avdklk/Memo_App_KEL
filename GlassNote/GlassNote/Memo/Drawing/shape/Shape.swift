@@ -6,13 +6,13 @@
 //
 import SwiftUI
 
-public protocol Shape: Codable {
+public protocol Shape: AnyObject, Codable {
     /// 이 도형을 전역적으로 구분하기 위한 고유 식별자.
       /// 특히 네트워크 기반 업데이트에서 동일성(equality) 비교를 위해 사용된다.
     var id: String { get set }
     
     /// 이 도형의 문자열 타입. 직렬화(serialization) 및 디버깅 용도로 사용된다.
-    var type: String { get set }
+    static var type: String { get }
     
     /// 주어진 Core Graphics 컨텍스트에 이 도형을 그린다.
     /// 위치 및 스케일에 대한 변환(transform)은 이미 적용된 상태다.
@@ -24,7 +24,7 @@ public protocol Shape: Codable {
     
     /// `userSettings`에 포함된 색상, 크기, 폰트 등의 설정을
     /// 이 도형에 적용한다.
-//    func apply(userStettins: String)//UserSettings
+    func apply(userSettings: UserSettings)
 }
 
 /**
@@ -123,34 +123,34 @@ extension ShapeWithStrokeState {
 }
 
 
-//public protocol ShapeWithTwoPoints {
-//  var a: CGPoint { get set }
-//  var b: CGPoint { get set }
-//
-//  var strokeWidth: CGFloat { get set }
-//}
-//
-//extension ShapeWithTwoPoints {
-//  public var rect: CGRect {
-//    let x1 = min(a.x, b.x)
-//    let y1 = min(a.y, b.y)
-//    let x2 = max(a.x, b.x)
-//    let y2 = max(a.y, b.y)
-//    return CGRect(x: x1, y: y1, width: x2 - x1, height: y2 - y1)
-//  }
-//    
-//    public var squareRect: CGRect {
-//        let width = min(abs(b.x - a.x), abs(b.y - a.y))
-//        let x = b.x < a.x ? a.x - width : a.x
-//        let y = b.y < a.y ? a.y - width : a.y
-//        return CGRect(x: x, y: y, width: width, height: width)
-//    }
-//    
-//
-//  public var boundingRect: CGRect {
-//    return rect.insetBy(dx: -strokeWidth/2, dy: -strokeWidth/2)
-//  }
-//}
+public protocol ShapeWithTwoPoints {
+  var a: CGPoint { get set }
+  var b: CGPoint { get set }
+
+  var strokeWidth: CGFloat { get set }
+}
+
+extension ShapeWithTwoPoints {
+  public var rect: CGRect {
+    let x1 = min(a.x, b.x)
+    let y1 = min(a.y, b.y)
+    let x2 = max(a.x, b.x)
+    let y2 = max(a.y, b.y)
+    return CGRect(x: x1, y: y1, width: x2 - x1, height: y2 - y1)
+  }
+    
+    public var squareRect: CGRect {
+        let width = min(abs(b.x - a.x), abs(b.y - a.y))
+        let x = b.x < a.x ? a.x - width : a.x
+        let y = b.y < a.y ? a.y - width : a.y
+        return CGRect(x: x, y: y, width: width, height: width)
+    }
+    
+
+  public var boundingRect: CGRect {
+    return rect.insetBy(dx: -strokeWidth/2, dy: -strokeWidth/2)
+  }
+}
 
 /**
  Special case of `Shape` where the shape is defined by exactly three points.

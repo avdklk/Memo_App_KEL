@@ -6,7 +6,7 @@
 //
 import Foundation
 
-final class Drawing: Codable {
+public final class Drawing: Codable {
     private enum CodingKeys: String, CodingKey {
       case size
       case shapes
@@ -21,6 +21,11 @@ final class Drawing: Codable {
     public static var debugSerialization = false
     public var shapeDecoder: ((MultiDecoder<Shape>) -> Void)?
 
+    init(size: CGSize) {
+        self.shapes = []
+        self.size = size
+    }
+    
     init(shapes: [Shape], size: CGSize) {
         self.shapes = shapes
         self.size = size
@@ -48,10 +53,13 @@ final class Drawing: Codable {
           // 이 과정에서 여러 개의 도형이 한 번에 디코딩될 수도 있다.
           do {
           try shapes.append(contentsOf: decodeAllShapes(&shapeIter))
+              for shape in shapes {
+                  print(shape)
+              }
         } catch {
-          if Drawing.debugSerialization {
+//          if Drawing.debugSerialization {
             throw error
-          }
+//          }
         }
 
 
@@ -73,27 +81,29 @@ final class Drawing: Codable {
     
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(size, forKey: .size)
+        try? container.encode(size, forKey: .size)
         // The Swift compiler can't figure out how to encode a heterogeneous array
         // of shapes, so we use this type system trick to turn a confusing "Shape"
         // into a non-confusing "Encodable", and for some reason the Swift compiler
         // accepts this and behaves correctly.
-        try container.encode(shapes.map({ AnyEncodable(base: $0) }), forKey: .shapes)
+        try? container.encode(shapes.map({ AnyEncodable(base: $0) }), forKey: .shapes)
     }
     
     private func decodeAllShapes(_ container: inout UnkeyedDecodingContainer) throws -> [Shape] {
       let multiDecoder = MultiDecoder<Shape>(container: &container)
 //      try multiDecoder.decode(EllipseShape.self)
 //      try multiDecoder.decode(LineShape.self)
-      try multiDecoder.decode(PenShape.self)
-      try multiDecoder.decode(RectShape.self)
-//      try multiDecoder.decode(TextShape.self)
+      try? multiDecoder.decode(PenShape.self)
+      try? multiDecoder.decode(RectShape.self)
+      try? multiDecoder.decode(TextShape.self)
 //      try multiDecoder.decode(StarShape.self)
 //      try multiDecoder.decode(NgonShape.self)
       shapeDecoder?(multiDecoder)
       container = multiDecoder.container
       return multiDecoder.results
     }
+    
+    
 }
 
 public enum DrawsanaDecodingError: Error {

@@ -55,9 +55,9 @@ struct ContentView: View {
                                 ) {
                                     isStartMemo = true
                                 }
-                                .fullScreenCover(isPresented: $isStartMemo) {
-                                    
-                                }
+//                                .fullScreenCover(isPresented: $isStartMemo) {
+//                                    
+//                                }
             }
         }
         .fullScreenCover(isPresented: $isStartMemo) {

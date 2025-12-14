@@ -6,6 +6,6 @@
 //
 public class RectTool: DrawingToolForShapeWithTwoPoints {
   public override var name: String { return "Rectangle" }
-  public override func makeShape() -> TwoPointsShape { return RectShape() }
+  public override func makeShape() -> Shape { return RectShape() }
 }
 

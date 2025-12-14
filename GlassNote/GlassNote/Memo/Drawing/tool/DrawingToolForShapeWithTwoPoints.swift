@@ -8,45 +8,55 @@ import Foundation
 import CoreGraphics
 
 open class DrawingToolForShapeWithTwoPoints: DrawingTool {
-//    public typealias ShapeType = Shape & ShapeWithTwoPoints
+    
+    public typealias ShapeType = Shape & ShapeWithTwoPoints
     
     open var name: String { fatalError("Override me") }
     
-    public var shapeInProgress: TwoPointsShape?
+    public var shapeInProgress: Shape?
     
     public init() { }
     
-    open func makeShape() -> TwoPointsShape {
+    open func makeShape() -> Shape {
       fatalError("Override me")
     }
     
-    public func handleTap(point: CGPoint) {
+    public func handleTap(shapeManager: ShapeManager, point: CGPoint) {
         
     }
     
-    public func handleDragStart(point: CGPoint, colorHex: String) -> any Shape {
+    public func handleDragStart(shapeManager: ShapeManager, point: CGPoint) {
         shapeInProgress = makeShape()
-        shapeInProgress?.point = ShapeWithTwoPoints(a: point, b: point, strokeWidth: 1)
+        if var shapeInTwoPoints = shapeInProgress as? ShapeType {
+            shapeInTwoPoints.a = point
+            shapeInTwoPoints.b = point
+            shapeInTwoPoints.apply(userSettings: shapeManager.userSettings)
+        }
         
-        return shapeInProgress!
     }
     
-    public func handleDragContinue(point: CGPoint, velocity: CGPoint) -> Shape? {
-        shapeInProgress?.point.setBPoint(b: point)
-        return shapeInProgress
+    public func handleDragContinue(shapeManager: ShapeManager, point: CGPoint, velocity: CGPoint) {
+        if var shapeInTwoPoints = shapeInProgress as? ShapeType {
+            shapeInTwoPoints.b = point
+        }
     }
     
-    public func handleDragEnd(point: CGPoint) {
-        guard var shape = shapeInProgress else { return }
-        shape.point.setBPoint(b: point)
-        shapeInProgress = nil
+    public func handleDragEnd(shapeManager: ShapeManager, point: CGPoint) {
+        if var shapeInTwoPoints = shapeInProgress as? ShapeType {
+            shapeInTwoPoints.b = point
+            shapeManager.operationStack.apply(operation: AddShapeOperation(shape: shapeInTwoPoints))
+        }
     }
     
-    public func handleDragCancel(point: CGPoint) {
-        handleDragEnd(point: point)
+    public func handleDragCancel(shapeManager: ShapeManager, point: CGPoint) {
+        handleDragEnd(shapeManager: shapeManager, point: point)
     }
     
     public func renderShapeInProgress(transientContext: CGContext) {
       shapeInProgress?.render(in: transientContext)
+    }
+    
+    public func apply(shapeManager: ShapeManager, userSettings: UserSettings) {
+        shapeInProgress?.apply(userSettings: userSettings)
     }
 }

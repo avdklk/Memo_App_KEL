@@ -24,22 +24,22 @@ public struct PenLineSegment: Codable, Equatable {
   }
 }
 
-public class PenShape: Shape, ShapeWithBoundingRect {
+public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithStrokeState {
     
     private enum CodingKeys: String, CodingKey {
-      case id, isFinished, strokeColor, start, strokeWidth, segments, isEraser, type, transform
+      case id, isFinished, strokeColor, start, strokeWidth, segments, isEraser, type , transform
     }
     
-    public var type: String = "Pen"
+    public static let type: String = "Pen"
 
     public var id: String = UUID().uuidString
     public var isFinished = true
     public var start: CGPoint = .zero
-    public var strokeColor: String = "#000000"
+    public var strokeColor: UIColor = .black
     public var strokeWidth: CGFloat = 10
     public var segments: [PenLineSegment] = []
     public var isEraser: Bool = false
-//    public var transform: ShapeTransform = .identity
+    public var transform: ShapeTransform = .identity
     
     public var boundingRect: CGRect {
       var minX = start.x, maxX = start.x
@@ -62,33 +62,33 @@ public class PenShape: Shape, ShapeWithBoundingRect {
       let values = try decoder.container(keyedBy: CodingKeys.self)
 
       let type = try values.decode(String.self, forKey: .type)
-      if type != type {
+        if type != PenShape.type {
         throw DrawsanaDecodingError.wrongShapeTypeError
       }
 
       id = try values.decode(String.self, forKey: .id)
       isFinished = try values.decode(Bool.self, forKey: .isFinished)
       start = try values.decode(CGPoint.self, forKey: .start)
-      strokeColor = try values.decode(String.self, forKey: .strokeColor)
+        strokeColor = try values.decodeColorIfPresent(forKey: .strokeColor) ?? .black
       strokeWidth = try values.decode(CGFloat.self, forKey: .strokeWidth)
       segments = try values.decode([PenLineSegment].self, forKey: .segments)
       isEraser = try values.decode(Bool.self, forKey: .isEraser)
-//      transform = try values.decodeIfPresent(ShapeTransform.self, forKey: .transform) ?? .identity
+      transform = try values.decodeIfPresent(ShapeTransform.self, forKey: .transform) ?? .identity
     }
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(type, forKey: .type)
+        try container.encode(PenShape.type, forKey: .type)
       try container.encode(id, forKey: .id)
       try container.encode(isFinished, forKey: .isFinished)
       try container.encode(start, forKey: .start)
-      try container.encode(strokeColor, forKey: .strokeColor)
+        try container.encode(strokeColor.hexString, forKey: .strokeColor)
       try container.encode(strokeWidth, forKey: .strokeWidth)
       try container.encode(segments, forKey: .segments)
       try container.encode(isEraser, forKey: .isEraser)
-//      if !transform.isIdentity {
-//        try container.encode(transform, forKey: .transform)
-//      }
+      if !transform.isIdentity {
+        try container.encode(transform, forKey: .transform)
+      }
     }
 
     public func add(segment: PenLineSegment) {
@@ -96,7 +96,7 @@ public class PenShape: Shape, ShapeWithBoundingRect {
     }
 
     private func render(in context: CGContext, onlyLast: Bool = false) {
-//      transform.begin(context: context)
+      transform.begin(context: context)
       context.saveGState()
       if isEraser {
         context.setBlendMode(.clear)
@@ -105,7 +105,7 @@ public class PenShape: Shape, ShapeWithBoundingRect {
       guard !segments.isEmpty else {
         if isFinished {
           // Draw a dot
-            context.setFillColor(UIColor.init(hex: strokeColor)?.cgColor ?? UIColor.black.cgColor)
+            context.setFillColor(strokeColor.cgColor)
           context.addArc(center: start, radius: strokeWidth / 2, startAngle: 0, endAngle: 2 * CGFloat.pi, clockwise: true)
           context.fillPath()
         } else {
@@ -117,7 +117,7 @@ public class PenShape: Shape, ShapeWithBoundingRect {
 
       context.setLineCap(.round)
       context.setLineJoin(.round)
-      context.setStrokeColor(UIColor.init(hex: strokeColor)?.cgColor ?? UIColor.black.cgColor)
+      context.setStrokeColor(strokeColor.cgColor)
 
       var lastSegment: PenLineSegment?
       if onlyLast, segments.count > 1 {
@@ -160,7 +160,7 @@ public class PenShape: Shape, ShapeWithBoundingRect {
         context.strokePath()
       }
       context.restoreGState()
-//      transform.end(context: context)
+      transform.end(context: context)
     }
 
     public func render(in context: CGContext) {

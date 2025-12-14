@@ -6,57 +6,63 @@
 //
 import UIKit
 
-public class RectShape: TwoPointsShape {
+public class RectShape: ShapeWithTwoPoints,
+                        ShapeWithStandardState,
+                        ShapeSelectable {
+    
     private enum CodingKeys: String, CodingKey {
-        case id, point, strokeColor, fillColor, strokeWidth, capStyle, joinStyle,
+      case id, a, b, strokeColor, fillColor, strokeWidth, capStyle, joinStyle,
       dashPhase, dashLengths, transform, type
     }
     
-    public var strokeColor: String = "#000000"
-    public var fillColor: String = "#000000"
+    public static let type: String = "Rectangle"
+
+    public var id: String = UUID().uuidString
+    public var a: CGPoint = .zero
+    public var b: CGPoint = .zero
+    public var strokeColor: UIColor? = .black
+    public var fillColor: UIColor? = .clear
     public var strokeWidth: CGFloat = 10
     public var capStyle: CGLineCap = .round
     public var joinStyle: CGLineJoin = .round
     public var dashPhase: CGFloat?
     public var dashLengths: [CGFloat]?
     public var transform: ShapeTransform = .identity
+    
+    public init() {
 
-    public override init() {
-        super.init()
-        type = "Rectangle"
-        dashPhase = 0.5
-        dashLengths = [1, 1]
     }
-
+    
     public required init(from decoder: Decoder) throws {
-        try super.init(from: decoder)
-      let values = try decoder.container(keyedBy: CodingKeys.self)
-
-      let type = try values.decode(String.self, forKey: .type)
-      if type != type {
-        throw DrawsanaDecodingError.wrongShapeTypeError
-      }
-
-      id = try values.decode(String.self, forKey: .id)
-      point = try values.decode(ShapeWithTwoPoints.self, forKey: .point)
-        strokeColor = try values.decode(String.self, forKey: .strokeColor)
-      fillColor = try values.decode(String.self, forKey: .fillColor)
-      strokeWidth = try values.decode(CGFloat.self, forKey: .strokeWidth)
-      transform = try values.decodeIfPresent(ShapeTransform.self, forKey: .transform) ?? .identity
-
-      capStyle = CGLineCap(rawValue: try values.decodeIfPresent(Int32.self, forKey: .capStyle) ?? CGLineCap.round.rawValue)!
-      joinStyle = CGLineJoin(rawValue: try values.decodeIfPresent(Int32.self, forKey: .joinStyle) ?? CGLineJoin.round.rawValue)!
-      dashPhase = try values.decodeIfPresent(CGFloat.self, forKey: .dashPhase)
-      dashLengths = try values.decodeIfPresent([CGFloat].self, forKey: .dashLengths)
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        let type = try values.decode(String.self, forKey: .type)
+        if type != type {
+            throw DrawsanaDecodingError.wrongShapeTypeError
+        }
+        
+        id = try values.decode(String.self, forKey: .id)
+        a = try values.decode(CGPoint.self, forKey: .a)
+        b = try values.decode(CGPoint.self, forKey: .b)
+        strokeColor = try values.decodeColorIfPresent(forKey: .strokeColor)
+        fillColor = try values.decodeColorIfPresent(forKey: .fillColor)
+        strokeWidth = try values.decode(CGFloat.self, forKey: .strokeWidth)
+        transform = try values.decodeIfPresent(ShapeTransform.self, forKey: .transform) ?? .identity
+        
+        capStyle = CGLineCap(rawValue: try values.decodeIfPresent(Int32.self, forKey: .capStyle) ?? CGLineCap.round.rawValue)!
+        joinStyle = CGLineJoin(rawValue: try values.decodeIfPresent(Int32.self, forKey: .joinStyle) ?? CGLineJoin.round.rawValue)!
+        dashPhase = try values.decodeIfPresent(CGFloat.self, forKey: .dashPhase)
+        dashLengths = try values.decodeIfPresent([CGFloat].self, forKey: .dashLengths)
     }
 
-    public override func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(type, forKey: .type)
+      try container.encode(RectShape.type, forKey: .type)
       try container.encode(id, forKey: .id)
-      try container.encode(point, forKey: .point)
-      try container.encode(strokeColor, forKey: .strokeColor)
-      try container.encode(fillColor, forKey: .fillColor)
+      try container.encode(a, forKey: .a)
+      try container.encode(b, forKey: .b)
+      try container.encode(strokeColor?.hexString, forKey: .strokeColor)
+      try container.encode(fillColor?.hexString, forKey: .fillColor)
       try container.encode(strokeWidth, forKey: .strokeWidth)
 
       if !transform.isIdentity {
@@ -73,12 +79,12 @@ public class RectShape: TwoPointsShape {
       try container.encodeIfPresent(dashLengths, forKey: .dashLengths)
     }
 
-    public override func render(in context: CGContext) {
+    public func render(in context: CGContext) {
       transform.begin(context: context)
 
-      if let fillColor = UIColor.init(hex: fillColor) {
-          context.setFillColor(UIColor.clear.cgColor) //Q
-          context.addRect(point.rect) //Q
+      if let fillColor = fillColor {
+        context.setFillColor(fillColor.cgColor)
+        context.addRect(rect)
         context.fillPath()
       }
       
@@ -86,17 +92,17 @@ public class RectShape: TwoPointsShape {
       context.setLineJoin(joinStyle)
       context.setLineWidth(strokeWidth)
 
-      if let strokeColor = UIColor.init(hex: strokeColor) {
+      if let strokeColor = strokeColor {
         context.setStrokeColor(strokeColor.cgColor)
         if let dashPhase = dashPhase, let dashLengths = dashLengths {
           context.setLineDash(phase: dashPhase, lengths: dashLengths)
         } else {
           context.setLineDash(phase: 0, lengths: [])
         }
-        context.addRect(point.rect)
+        context.addRect(rect)
         context.strokePath()
       }
 
       transform.end(context: context)
     }
-}
+  }
