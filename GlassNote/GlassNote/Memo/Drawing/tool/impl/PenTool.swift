@@ -6,10 +6,11 @@
 //
 import UIKit
 
-final class PenTool: DrawingTool {
+class PenTool: DrawingTool {
     var name: String = "Pen"
     public var shapeInProgress: PenShape?
     public var velocityBasedWidth: Bool = false
+    public var isEraser = false
     private var shapeInProgressBuffer: UIImage?
     private var drawingSize: CGSize = .zero
     private var alpha: CGFloat = 0
@@ -50,8 +51,12 @@ final class PenTool: DrawingTool {
         shape.add(segment: PenLineSegment(a: point, b: point, width: 10))
         shape.isFinished = false
         shape.apply(userSettings: shapeManager.userSettings)
+        shape.isEraser = isEraser
         //        shape.strokeColor = shape.strokeColor.withAlphaComponent(1)
         shapeManager.addShape(shape: shape)
     }
     
+    func setEraserMode(isEraser: Bool) {
+        self.isEraser = isEraser
+    }
 }

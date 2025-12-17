@@ -34,7 +34,10 @@ struct DrawView: View {
                         }
                         
                         GlassDrawToolButton(systemName: "eraser") { //eraser
-                            
+                            toolType = .eraser
+                            let pentool = PenTool()
+                            pentool.setEraserMode(isEraser: true)
+                            shapeManager.tool = pentool
                         }
                         
                         GlassDrawToolButton(systemName: "square.and.arrow.up") { //저장
@@ -46,10 +49,11 @@ struct DrawView: View {
                         }
                         
                         GlassDrawToolButton(systemName: "arrow.uturn.backward.circle") { //undo
-                            
+                            shapeManager.undo()
                         }
+                        
                         GlassDrawToolButton(systemName: "arrow.uturn.forward.circle") { //redo
-                            
+                            shapeManager.redo()
                         }
                         
                         GlassDrawToolButton(systemName: "t.circle") {

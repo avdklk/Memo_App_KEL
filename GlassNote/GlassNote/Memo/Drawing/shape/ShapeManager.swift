@@ -26,6 +26,8 @@ public class ShapeManager: ObservableObject {
 //        }
       }
     }
+    
+    public lazy var undoRedoManager: UndoRedoManager = UndoRedoManager(shapeManager: self)
     public lazy var operationStack: DrawingOperationStack = {
         return DrawingOperationStack(shapeManager: self)
       }()
@@ -66,6 +68,10 @@ public class ShapeManager: ObservableObject {
         shapes = shapes.filter({ $0 !== shape })
     }
     
+    public func popLastShape() -> Shape? {
+        return shapes.popLast()
+    }
+    
     public func set(tool: DrawingTool, shape: Shape? = nil) {
         if let oldTool = self.tool, tool === oldTool {
           return
@@ -82,6 +88,14 @@ public class ShapeManager: ObservableObject {
 //          self.applyToolSettingsChanges()
 //          self.delegate?.drawsanaView(self, didSwitchTo: tool)
         }
+    }
+    
+    public func undo() {
+        undoRedoManager.undo()
+    }
+    
+    public func redo() {
+        undoRedoManager.redo()
     }
     
     public func drawStart(point: CGPoint) {
