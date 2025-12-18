@@ -38,6 +38,11 @@ open class DrawingToolForShapeWithTwoPoints: DrawingTool {
     public func handleDragContinue(shapeManager: ShapeManager, point: CGPoint, velocity: CGPoint) {
         if var shapeInTwoPoints = shapeInProgress as? ShapeType {
             shapeInTwoPoints.b = point
+            
+            
+            if let _ = shapeManager.shapes.popLast() {
+                shapeManager.addShape(shape: shapeInTwoPoints)
+            }
         }
     }
     

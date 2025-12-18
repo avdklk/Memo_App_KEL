@@ -99,21 +99,15 @@ public class ShapeManager: ObservableObject {
     }
     
     public func drawStart(point: CGPoint) {
-//        let shape = tool.handleDragStart(point: point, colorHex: "#000000")
-//        shapes.append(shape)
         isStart = false
         tool?.handleDragStart(shapeManager: self, point: point)
     }
     
     public func drawContinue(point: CGPoint) {
-//        guard let newShape = tool.handleDragContinue(point: point, velocity:.zero) else {return}
-//        shapes[shapes.count - 1] = newShape
-        
         tool?.handleDragContinue(shapeManager: self, point: point, velocity: .zero)
     }
     
     public func drawEnd(point: CGPoint) {
-//        tool.handleDragEnd(point: point)
         isStart = true
         tool?.handleDragEnd(shapeManager: self, point: point)
     }
@@ -134,8 +128,6 @@ public class ShapeManager: ObservableObject {
         do {
             let drawing = try savingManager.loadShapes()
             self.shapes = drawing.shapes
-            //GlassNote.RectShape
-            //는 없음
             self.size = drawing.size
         } catch {
             print(error.localizedDescription)

@@ -170,4 +170,9 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
     public func renderLatestSegment(in context: CGContext) {
       render(in: context, onlyLast: true)
     }
+    
+    public func apply(userSettings: UserSettings) {
+        strokeWidth = userSettings.strokeWidth
+        strokeColor = userSettings.strokeColor ?? .black
+    }
 }

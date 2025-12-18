@@ -11,10 +11,15 @@ struct DrawView: View {
     @StateObject private var shapeManager = ShapeManager()
     @State var point: CGPoint = .zero
     @State var isShowTextView: Bool = false
+    @State var isShowPenWidth: Bool = false
+    @State var isShowEraserWidth: Bool = false
+    @State var isShowTextSize: Bool = false
     @State var text: String = ""
     @State var textRect: CGRect = .zero
     @State var changedColor: Color = .black
     @State var toolType: ToolType = .pen
+    @State var strokeWidth: CGFloat = 8
+    @State var fontSize: CGFloat = 15
     
     var body: some View {
         
@@ -26,6 +31,31 @@ struct DrawView: View {
                         GlassDrawToolButton(systemName: "pencil.line") {
                             toolType = .pen
                             shapeManager.tool = PenTool()
+                        }
+                        .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                            isShowPenWidth.toggle()
+                        }))
+                        .popover(isPresented: $isShowPenWidth, arrowEdge: .top) {
+                            Text("펜의 굵기는 \(strokeWidth, specifier: "%.2f") 입니다.")
+                                .frame(width: 180)
+                                .padding([.top, .trailing, .leading], 15)
+                                .font(.system(size: 15))
+                                .presentationCompactAdaptation(.popover)
+                            
+                            Slider(value: $strokeWidth, in: 1...16)
+                                .padding([.trailing, .leading], 15)
+                            
+                            HStack {
+                                Text("1")
+                                    .font(.system(size: 15))
+                                Spacer()
+                                Text("8")
+                                    .font(.system(size: 15))
+                                Spacer()
+                                Text("16")
+                                    .font(.system(size: 15))
+                            }
+                            .padding([.bottom, .trailing, .leading], 15)
                         }
                         
                         GlassDrawToolButton(systemName: "square") { //rect
@@ -39,7 +69,31 @@ struct DrawView: View {
                             pentool.setEraserMode(isEraser: true)
                             shapeManager.tool = pentool
                         }
-                        
+                        .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                            isShowEraserWidth.toggle()
+                        }))
+                        .popover(isPresented: $isShowEraserWidth, arrowEdge: .top) {
+                            Text("지우개의 굵기는 \(strokeWidth, specifier: "%.2f") 입니다.")
+                                .frame(width: 180)
+                                .padding([.top, .trailing, .leading], 15)
+                                .font(.system(size: 15))
+                                .presentationCompactAdaptation(.popover)
+                            
+                            Slider(value: $strokeWidth, in: 1...16)
+                                .padding([.trailing, .leading], 15)
+                            
+                            HStack {
+                                Text("1")
+                                    .font(.system(size: 15))
+                                Spacer()
+                                Text("8")
+                                    .font(.system(size: 15))
+                                Spacer()
+                                Text("16")
+                                    .font(.system(size: 15))
+                            }
+                            .padding([.bottom, .trailing, .leading], 15)
+                        }
                         GlassDrawToolButton(systemName: "square.and.arrow.up") { //저장
                             shapeManager.saveShape()
                         }
@@ -59,6 +113,31 @@ struct DrawView: View {
                         GlassDrawToolButton(systemName: "t.circle") {
                             toolType = .text
                             isShowTextView.toggle()
+                        }
+                        .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                            isShowTextSize.toggle()
+                        }))
+                        .popover(isPresented: $isShowTextSize, arrowEdge: .top) {
+                            Text("텍스트 폰트 크기는 \(fontSize, specifier: "%.2f") 입니다.")
+                                .frame(width: 180)
+                                .padding([.top, .trailing, .leading], 15)
+                                .font(.system(size: 15))
+                                .presentationCompactAdaptation(.popover)
+                            
+                            Slider(value: $fontSize, in: 1...30)
+                                .padding([.trailing, .leading], 15)
+                            
+                            HStack {
+                                Text("1")
+                                    .font(.system(size: 15))
+                                Spacer()
+                                Text("15")
+                                    .font(.system(size: 15))
+                                Spacer()
+                                Text("30")
+                                    .font(.system(size: 15))
+                            }
+                            .padding([.bottom, .trailing, .leading], 15)
                         }
                         
                         ColorPicker("", selection: $changedColor)
@@ -89,6 +168,12 @@ struct DrawView: View {
                             TextView(text: $text, rect: $textRect, isShowTextView: $isShowTextView, userSettings: shapeManager.userSettings)
                         }
                     }
+                }
+                .onChange(of:fontSize) { oldValue, newValue in
+                    shapeManager.userSettings.fontSize = newValue
+                }
+                .onChange(of: strokeWidth) { oldValue, newValue in
+                    shapeManager.userSettings.strokeWidth = newValue
                 }
                 .onChange(of: text) { oldValue, newValue in
                     isShowTextView = false

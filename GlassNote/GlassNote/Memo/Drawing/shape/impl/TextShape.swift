@@ -34,7 +34,7 @@ public class TextShape: Shape, ShapeSelectable {
   public var boundingRect: CGRect = .zero
 
   var font: UIFont {
-      return UIFont.italicSystemFont(ofSize: 32)
+      return UIFont.systemFont(ofSize: fontSize)
 //    return UIFont(name: fontName, size: fontSize)!
   }
 
@@ -84,7 +84,7 @@ public class TextShape: Shape, ShapeSelectable {
         defer { UIGraphicsPopContext() }
         
         let attributes: [NSAttributedString.Key: Any] = [
-            .font: self.font,
+            .font: UIFont.systemFont(ofSize: self.fontSize) ,
             .foregroundColor: self.fillColor,
         ]
         let nsText = (self.text as NSString)
