@@ -83,9 +83,10 @@ extension NoteDetailView {
     private var contentArea: some View {
         GlassContainer {
             VStack(spacing: 20) {
-                Text("여기에 넣으면 됩니다.")
-                    .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.5))
+                DrawView()
+//                Text("여기에 넣으면 됩니다.")
+//                    .font(.system(size: 14))
+//                    .foregroundColor(.white.opacity(0.5))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }

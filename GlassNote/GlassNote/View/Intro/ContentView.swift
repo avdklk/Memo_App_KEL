@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var goToFiles = false
+    @State private var isStartMemo = false
     
     var body: some View {
         ZStack {
