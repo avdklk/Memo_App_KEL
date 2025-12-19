@@ -9,6 +9,8 @@ import SwiftUI
 
 
 struct ContentView: View {
+    @State private var goToFiles = false
+    
     var body: some View {
         ZStack {
             
@@ -44,7 +46,10 @@ struct ContentView: View {
                     title: "Start Note",
                     isSelected: true
                 ) {
-                    // TODO: 메인 편집 화면으로 이동
+                    goToFiles = true
+                }
+                .fullScreenCover(isPresented: $goToFiles) {
+                    FileSelete()
                 }
             }
         }
