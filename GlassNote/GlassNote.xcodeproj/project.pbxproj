@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		078827C42EF81DF000E96559 /* NoteElement+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */; };
+		078827C52EF81DF000E96559 /* NoteElement+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */; };
+		078827C62EF81DF000E96559 /* Note+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */; };
+		078827C72EF81DF000E96559 /* Note+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataClass.swift"; sourceTree = "<group>"; };
+		078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteElement+CoreDataClass.swift"; sourceTree = "<group>"; };
+		078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteElement+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		374ABC5E2ECB532C00674E3D /* GlassNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GlassNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +43,10 @@
 		374ABC552ECB532C00674E3D = {
 			isa = PBXGroup;
 			children = (
+				078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */,
+				078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */,
+				078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */,
+				078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */,
 				374ABC602ECB532C00674E3D /* GlassNote */,
 				374ABC5F2ECB532C00674E3D /* Products */,
 			);
@@ -119,6 +134,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				078827C42EF81DF000E96559 /* NoteElement+CoreDataProperties.swift in Sources */,
+				078827C52EF81DF000E96559 /* NoteElement+CoreDataClass.swift in Sources */,
+				078827C62EF81DF000E96559 /* Note+CoreDataProperties.swift in Sources */,
+				078827C72EF81DF000E96559 /* Note+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -253,7 +272,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BSWRGQGBD5;
+				DEVELOPMENT_TEAM = 6BM3L49F73;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -281,7 +300,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = BSWRGQGBD5;
+				DEVELOPMENT_TEAM = 6BM3L49F73;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

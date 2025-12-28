@@ -26,7 +26,8 @@ class PenTool: DrawingTool {
         let lastPoint = shape.segments.last?.b ?? shape.start
         
         if lastPoint != point {
-          shape.add(segment: PenLineSegment(a: lastPoint, b: point, width: 10))
+        let shapeWidth = shapeManager.userSettings.strokeWidth
+          shape.add(segment: PenLineSegment(a: lastPoint, b: point, width: shapeWidth))
         }
         if let lastShape = shapeManager.shapes.popLast() {
             shapeManager.addShape(shape: shape)
@@ -47,8 +48,10 @@ class PenTool: DrawingTool {
         lastVelocity = .zero
         let shape = PenShape()
         shapeInProgress = shape
+        shape.createdAt = Date()
         shape.start = point
-        shape.add(segment: PenLineSegment(a: point, b: point, width: 10))
+        let shapeWidth = shapeManager.userSettings.strokeWidth
+        shape.add(segment: PenLineSegment(a: point, b: point, width: shapeWidth))
         shape.isFinished = false
         shape.apply(userSettings: shapeManager.userSettings)
         shape.isEraser = isEraser

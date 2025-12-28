@@ -30,7 +30,7 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
       case id, isFinished, strokeColor, start, strokeWidth, segments, isEraser, type , transform
     }
     
-    public static let type: String = "Pen"
+    public let type: String = "Pen"
 
     public var id: String = UUID().uuidString
     public var isFinished = true
@@ -40,6 +40,7 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
     public var segments: [PenLineSegment] = []
     public var isEraser: Bool = false
     public var transform: ShapeTransform = .identity
+    public var createdAt: Date?
     
     public var boundingRect: CGRect {
       var minX = start.x, maxX = start.x
@@ -58,11 +59,22 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
     }
     
     public init() {}
+    public init(penData: PenData) {
+        self.id = penData.id
+        self.isFinished = penData.isFinished
+        self.start = penData.start
+        self.strokeColor = UIColor.init(hexString: penData.strokeColor)
+        self.strokeWidth = penData.strokeWidth
+        self.segments = penData.segments
+        self.isEraser = penData.isEraser
+        self.transform = penData.transform
+    }
+    
     public required init(from decoder: Decoder) throws {
       let values = try decoder.container(keyedBy: CodingKeys.self)
 
       let type = try values.decode(String.self, forKey: .type)
-        if type != PenShape.type {
+        if type != type {
         throw DrawsanaDecodingError.wrongShapeTypeError
       }
 
@@ -78,7 +90,7 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
 
     public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(PenShape.type, forKey: .type)
+        try container.encode(type, forKey: .type)
       try container.encode(id, forKey: .id)
       try container.encode(isFinished, forKey: .isFinished)
       try container.encode(start, forKey: .start)
@@ -174,5 +186,11 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
     public func apply(userSettings: UserSettings) {
         strokeWidth = userSettings.strokeWidth
         strokeColor = userSettings.strokeColor ?? .black
+    }
+    
+    public func getData() -> DrawingShape {
+        let penData = PenData(id: id, isFinished: isFinished, start: start, strokeColor: strokeColor.hexString, strokeWidth: strokeWidth, segments: segments, isEraser: isEraser, transform: transform)
+        
+        return DrawingShape.pen(penData)
     }
 }

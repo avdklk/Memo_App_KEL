@@ -12,7 +12,7 @@ final class IconToggleImageView: UIView {
     let label: UILabel = {
        let label = UILabel()
         label.textColor = .white
-        label.font = .systemFont(ofSize: 10)
+        label.font = .systemFont(ofSize: 12)
         label.lineBreakMode = .byCharWrapping
         label.numberOfLines = 0
         return label

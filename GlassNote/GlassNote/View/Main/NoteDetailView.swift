@@ -19,7 +19,7 @@ struct NoteDetailView: View {
     var body: some View {
         ZStack {
             GlassBackground()
-            
+//            DrawView(note: note, context: context)
             VStack(spacing: 0) {
                 //MARK: - Header
                 header
@@ -83,7 +83,7 @@ extension NoteDetailView {
     private var contentArea: some View {
         GlassContainer {
             VStack(spacing: 20) {
-                DrawView()
+                DrawView(note: note, context: context)
 //                Text("여기에 넣으면 됩니다.")
 //                    .font(.system(size: 14))
 //                    .foregroundColor(.white.opacity(0.5))

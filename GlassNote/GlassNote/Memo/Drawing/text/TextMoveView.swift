@@ -48,8 +48,8 @@ public class TextMoveView: UIView {
     private let changePositionView: IconToggleImageView = IconToggleImageView(systemName: "arrow.up.left.and.down.right.and.arrow.up.right.and.down.left", title: "위치")
 
     private var delegate: TextMoveViewDelegate?
-    private let actionViewWidth: CGFloat = 25
-    private let actionViewHeight: CGFloat = 30
+    private let actionViewWidth: CGFloat = 35
+    private let actionViewHeight: CGFloat = 45
     private var actionType: ActionType = .move
     init(delegate: TextMoveViewDelegate) {
         super.init(frame: .zero)
@@ -144,9 +144,12 @@ public class TextMoveView: UIView {
             }
         case .changed:
             let p = sender.location(in: self)
+            
             switch self.actionType {
             case .move:
-                textView.frame.origin = CGPoint(x: p.x - textView.frame.width, y: p.y)
+                let newP = CGPoint(x: p.x - textView.frame.width, y: p.y)
+                textView.frame.origin = newP
+                textView.layoutIfNeeded()
             case .width:
                 let newWidth = abs(p.x - textView.frame.minX)
                 let newHeight = abs(p.y - textView.frame.minY)
@@ -158,9 +161,15 @@ public class TextMoveView: UIView {
                 print("none changed")
             }
         case .ended:
+            let p = sender.location(in: self)
+            
             switch self.actionType {
-            case .move, .width:
-                print("move, width,end")
+            case .move:
+                let newP = makeMovePoint(p: p)
+                textView.frame.origin = newP
+            case .width:
+                let newRect = makeWidthPoint(p: p)
+                textView.frame = newRect
             case .delete:
                 delegate?.editEnd(text: "", rect: .zero)
             case .draw:
@@ -175,6 +184,59 @@ public class TextMoveView: UIView {
         @unknown default:
             print("didpan")
         }
+    }
+    
+    private func makeMovePoint(p: CGPoint) -> CGPoint {
+        var newP = CGPoint(x: p.x - textView.frame.width, y: p.y)
+        if textView.frame.minX < self.frame.minX {
+            newP.x = self.frame.minX
+        }
+        
+        if textView.frame.minY < self.frame.minY {
+            newP.y = self.frame.minY
+        }
+        
+        if textView.frame.maxX > self.frame.maxX {
+            newP.x = self.frame.maxX - textView.frame.width
+        }
+        
+        if textView.frame.maxY > self.frame.maxY {
+            newP.y = self.frame.maxY - textView.frame.height
+        }
+        
+        return newP
+    }
+    
+    private func makeWidthPoint(p: CGPoint) -> CGRect {
+        let basicWidth = abs(p.x - textView.frame.minX)
+        let basicHeight = abs(p.y - textView.frame.minY)
+        
+        var newRect = CGRect(origin: textView.frame.origin, size: CGSize(width: basicWidth, height: basicHeight))
+        
+        if textView.frame.minX < self.frame.minX {
+            let newWidth = abs(p.x - self.frame.minX)
+            newRect.origin.x = self.frame.minX
+            newRect.size.width = newWidth
+        }
+        
+        if textView.frame.minY < self.frame.minY {
+            newRect.origin.y = self.frame.minY
+            let newHeight = abs(p.y - self.frame.minY)
+            newRect.size.height = newHeight
+        }
+        
+        if textView.frame.maxX > self.frame.maxX {
+            newRect.origin.x = abs(self.frame.maxX - textView.frame.width)
+            let newWidth = abs(self.frame.maxX - textView.frame.minX)
+            newRect.size.width = newWidth
+        }
+        
+        if textView.frame.maxY > self.frame.maxY {
+            newRect.origin.y = abs(self.frame.maxY - textView.frame.height)
+            let newHeight = abs(self.frame.maxY - textView.frame.minY)
+            newRect.size.height = newHeight
+        }
+        return newRect
     }
 }
 

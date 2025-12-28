@@ -10,9 +10,12 @@ public protocol Shape: AnyObject, Codable {
     /// 이 도형을 전역적으로 구분하기 위한 고유 식별자.
       /// 특히 네트워크 기반 업데이트에서 동일성(equality) 비교를 위해 사용된다.
     var id: String { get set }
-    
+    /*
+     coreData에 저장될 생성날짜
+     */
+    var createdAt: Date? { get set }
     /// 이 도형의 문자열 타입. 직렬화(serialization) 및 디버깅 용도로 사용된다.
-    static var type: String { get }
+    var type: String { get }
     
     /// 주어진 Core Graphics 컨텍스트에 이 도형을 그린다.
     /// 위치 및 스케일에 대한 변환(transform)은 이미 적용된 상태다.
@@ -25,6 +28,8 @@ public protocol Shape: AnyObject, Codable {
     /// `userSettings`에 포함된 색상, 크기, 폰트 등의 설정을
     /// 이 도형에 적용한다.
     func apply(userSettings: UserSettings)
+    //coreData 저장용 data
+    func getData() -> DrawingShape
 }
 
 /**

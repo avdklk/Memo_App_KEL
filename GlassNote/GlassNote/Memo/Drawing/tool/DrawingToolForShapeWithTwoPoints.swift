@@ -30,6 +30,8 @@ open class DrawingToolForShapeWithTwoPoints: DrawingTool {
         if var shapeInTwoPoints = shapeInProgress as? ShapeType {
             shapeInTwoPoints.a = point
             shapeInTwoPoints.b = point
+            shapeInTwoPoints.createdAt = Date()
+            shapeManager.addShape(shape: shapeInTwoPoints)
             shapeInTwoPoints.apply(userSettings: shapeManager.userSettings)
         }
         
@@ -49,7 +51,10 @@ open class DrawingToolForShapeWithTwoPoints: DrawingTool {
     public func handleDragEnd(shapeManager: ShapeManager, point: CGPoint) {
         if var shapeInTwoPoints = shapeInProgress as? ShapeType {
             shapeInTwoPoints.b = point
-            shapeManager.operationStack.apply(operation: AddShapeOperation(shape: shapeInTwoPoints))
+//            shapeManager.operationStack.apply(operation: AddShapeOperation(shape: shapeInTwoPoints))
+            if let _ = shapeManager.shapes.popLast() {
+                shapeManager.addShape(shape: shapeInTwoPoints)
+            }
         }
     }
     
