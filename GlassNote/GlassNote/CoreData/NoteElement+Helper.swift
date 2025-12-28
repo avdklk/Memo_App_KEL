@@ -10,44 +10,51 @@ import CoreData
 
 //MARK: - NoteElement 타입 정의
 enum NoteElementType: String {
-    case text = "text"
-    case sketch = "sketch"
-    case drawing = "drawing"
+    case text = "Text"
+    case rect = "Rectangle"
+    case pen = "Pen"
 }
 
 //MARK: - NoteElement 헬퍼 메서드
 extension NoteElement {
-    
-    /// 텍스트 요소 생성
-    static func createText(
-        in context: NSManagedObjectContext,
-        note: Note,
-        content: String,
-        order: Int16
-    ) -> NoteElement {
-        let element = NoteElement(context: context)
-        element.id = UUID()
-        element.type = NoteElementType.text.rawValue
-        element.textContent = content
-        element.order = order
-        element.createdAt = Date()
-        element.note = note
-        return element
+    var shape: DrawingShape? {
+        get {
+            guard let data = self.drawingShape else {return nil}
+            do {
+                return try JSONDecoder().decode(DrawingShape.self, from: data)
+            } catch {
+                print("디코딩 실패: \(error)")
+                return nil
+            }
+        }
+        set {
+            guard let newValue = newValue else { return }
+            do {
+                let data = try JSONEncoder().encode(newValue)
+                self.drawingShape = data
+                
+                switch newValue {
+                case .pen: self.type = "pen"
+                case .rect: self.type = "rect"
+                case .text: self.type = "text"
+                }
+            } catch {
+                print("디코딩 실패: \(error)")
+            }
+        }
     }
-    
     /// 스케치/드로잉 요소 생성 (PencilKit 등)
     static func createDrawing(
         in context: NSManagedObjectContext,
+        id: UUID,
         note: Note,
         data: Data,
-        type: NoteElementType = .sketch,
-        order: Int16
+        type: NoteElementType = .pen,
     ) -> NoteElement {
         let element = NoteElement(context: context)
-        element.id = UUID()
+        element.id = id
         element.type = type.rawValue
-        element.drawingData = data
-        element.order = order
+        element.drawingShape = data
         element.createdAt = Date()
         element.note = note
         return element
@@ -55,19 +62,10 @@ extension NoteElement {
     
     /// 요소 타입 확인
     var elementType: NoteElementType? {
-        guard let type = type else { return nil }
+        guard let type = type else {return nil}
         return NoteElementType(rawValue: type)
     }
-    
-    /// 텍스트 타입인지 확인
-    var isText: Bool {
-        return elementType == .text
-    }
-    
-    /// 드로잉 타입인지 확인
-    var isDrawing: Bool {
-        return elementType == .sketch || elementType == .drawing
-    }
+
 }
 
 //MARK: - Note 헬퍼 메서드
@@ -76,33 +74,42 @@ extension Note {
     /// 정렬된 요소 배열 반환
     var sortedElements: [NoteElement] {
         let set = elements as? Set<NoteElement> ?? []
-        return set.sorted { $0.order < $1.order }
+        return set.filter{ $0.createdAt != nil }.sorted { $0.createdAt! < $1.createdAt! }
     }
     
+    var shapes: [Shape] {
+        var shapes: [Shape] = []
+        for e in sortedElements {
+            switch e.shape {
+            case .pen(let penData):
+                let penShape = PenShape(penData: penData)
+                shapes.append(penShape)
+            case .rect(let rectData):
+                let rectShape = RectShape(rectData: rectData)
+                shapes.append(rectShape)
+            case .text(let textData):
+                let textShape = TextShape(textData: textData)
+                shapes.append(textShape)
+            case .none:
+                print("Note shapes type 없음")
+            }
+        }
+        return shapes
+    }
     /// 다음 순서 번호 반환
-    var nextElementOrder: Int16 {
-        let maxOrder = sortedElements.last?.order ?? -1
-        return maxOrder + 1
-    }
-    
-    /// 텍스트 요소 추가
-    func addTextElement(in context: NSManagedObjectContext, content: String) -> NoteElement {
-        return NoteElement.createText(
-            in: context,
-            note: self,
-            content: content,
-            order: nextElementOrder
-        )
+    var nextElementId: UUID? {
+        let maxOrder = sortedElements.last?.id
+        return maxOrder
     }
     
     /// 드로잉 요소 추가
-    func addDrawingElement(in context: NSManagedObjectContext, data: Data, type: NoteElementType = .sketch) -> NoteElement {
+    func addDrawingElement(in context: NSManagedObjectContext,id: UUID, data: Data, type: NoteElementType = .pen) -> NoteElement {
         return NoteElement.createDrawing(
             in: context,
+            id: id,
             note: self,
             data: data,
-            type: type,
-            order: nextElementOrder
+            type: type
         )
     }
 }
