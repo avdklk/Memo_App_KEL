@@ -12,6 +12,8 @@ public class ShapeManager: ObservableObject {
     @Published var shapes: [Shape] = []
     @Published var isStart: Bool = true
     @Published  var tool: DrawingTool?
+    @Published var canUndo: Bool = false
+    @Published var canRedo: Bool = false
     
     private var context: NSManagedObjectContext
     var note: Note
@@ -82,7 +84,7 @@ public class ShapeManager: ObservableObject {
     public func saveNewNoteElement() {
         guard let lastShape = shapes.last, let id = UUID(uuidString: lastShape.id), let type = NoteElementType(rawValue: lastShape.type),  let drawingShape = lastShape.getData().toData() else {return}
         
-        let NoteElement = note.addDrawingElement(in: context, id: id, data: drawingShape, type: type)
+        _ = note.addDrawingElement(in: context, id: id, data: drawingShape, type: type)
         try? context.save()
     }
     
@@ -135,11 +137,14 @@ public class ShapeManager: ObservableObject {
         isStart = true
         tool?.handleDragEnd(shapeManager: self, point: point)
         saveNewNoteElement()
+        canUndo = !shapes.isEmpty
+        undoRedoManager.resetRedo()
     }
     
     public func getShape() {
         let savedShapes = note.shapes
         shapes = savedShapes
+        canUndo = !shapes.isEmpty
     }
 }
 

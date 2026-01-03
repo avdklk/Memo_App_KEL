@@ -11,6 +11,7 @@ struct TextView: UIViewRepresentable {
     @Binding var text: String
     @Binding var rect: CGRect
     @Binding var isShowTextView: Bool
+    @Binding var textWidth: CGFloat
     
     var userSettings: UserSettings
     
@@ -20,7 +21,7 @@ struct TextView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: TextMoveView, context: Context) {
-        //
+        uiView.setFontSize(fontSize: textWidth)
     }
     
     func makeCoordinator() -> Coordinator {
@@ -32,10 +33,6 @@ struct TextView: UIViewRepresentable {
         
         init(_ parent: TextView) {
             self.parent = parent
-        }
-        
-        func editStart() {
-            
         }
         
         func editEnd(text: String, rect: CGRect) {

@@ -17,7 +17,7 @@ struct FileSelete: View {
     private var notes: FetchedResults<Note>
     
     @Environment(\.managedObjectContext) private var context
-    @State private var showNewNote = false
+    @State private var canDelete: Bool = false
     @State private var selectedNote: Note? = nil
     
     var body: some View {
@@ -30,11 +30,20 @@ struct FileSelete: View {
                 
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
-                        ForEach(notes) { note in
-                            LiquidGlassNoteCard(note: note)
-                                .onTapGesture {
+                        ForEach(notes, id: \.objectID) { note in
+                            Button(action: {
+                                // 버튼 액션 안에서 로직 처리
+                                if canDelete {
+                                    context.delete(note)
+                                    try? context.save()
+                                } else {
                                     selectedNote = note
                                 }
+                            }) {
+                                LiquidGlassNoteCard(note: note, canDelete: canDelete)
+                                    .contentShape(Rectangle()) // 터치 영역 꽉 채우기 (필수)
+                            }
+                            .buttonStyle(PlainButtonStyle())
                         }
                         
                         if notes.isEmpty {
@@ -45,9 +54,6 @@ struct FileSelete: View {
                     .padding(.top, 10)
                 }
             }
-        }
-        .sheet(isPresented: $showNewNote) {
-            createNewNote()
         }
         .fullScreenCover(item: $selectedNote) { note in
             NoteDetailView(note: note)
@@ -66,11 +72,28 @@ extension FileSelete {
             
             Spacer()
             
-            // New note button (Liquid style)
-            GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true) {
-                showNewNote = true
+            if canDelete {
+                GlassToolButton(systemName: "circle.fill", title: "Done", isSelected: true) {
+                    canDelete = false
+                }
+            } else {
+                Menu {
+                    GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true) {
+                        let newNote = Note(context: context)
+                        newNote.id = UUID()
+                        newNote.title = "New Note"
+                        newNote.previewText = ""
+                        newNote.updatedAt = Date()
+                        try? context.save()
+                    }
+                    
+                    GlassToolButton(systemName: "xmark", title: "Delete", isSelected: true) {
+                        canDelete = true
+                    }
+                } label: {
+                    GlassToolButton(systemName: "ellipsis.circle", title: "Menu", isSelected: true) {}
+                }
             }
-            .frame(width: 120, height: 38)
         }
         .padding(.horizontal, 24)
         .padding(.top, 24)
@@ -106,8 +129,6 @@ extension FileSelete {
                 newNote.previewText = ""
                 newNote.updatedAt = Date()
                 try? context.save()
-                
-                showNewNote = false
             }
             .padding()
         }

@@ -8,7 +8,7 @@ import SwiftUI
 
 struct LiquidGlassNoteCard: View {
     @ObservedObject var note: Note
-    
+    var canDelete: Bool
     @State private var shineOffset: CGFloat = -180
     
     var body: some View {
@@ -27,7 +27,7 @@ struct LiquidGlassNoteCard: View {
             
             HStack {
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(note.title ?? "Untitled")
+                    Text(note.title ?? "")
                         .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                     
@@ -43,9 +43,15 @@ struct LiquidGlassNoteCard: View {
                 
                 Spacer()
                 
-                Image(systemName: "arrow.right.circle")
-                    .font(.system(size: 22, weight: .medium))
-                    .foregroundColor(.white.opacity(0.8))
+                if canDelete {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundColor(.red.opacity(0.8))
+                } else {
+                    Image(systemName: "arrow.right.circle")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundColor(.white.opacity(0.8))
+                }
             }
             .padding(20)
         }

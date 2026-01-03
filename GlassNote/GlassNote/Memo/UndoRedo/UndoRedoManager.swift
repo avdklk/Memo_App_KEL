@@ -7,21 +7,28 @@
 
 public class UndoRedoManager {
     private var redoStack = [Shape]()
-    private var shapeManager: ShapeManager
+    private weak var shapeManager: ShapeManager?
     
     init(shapeManager: ShapeManager) {
         self.shapeManager = shapeManager
     }
     
     public func undo() {
-        if let lastShape = shapeManager.popLastShape() {
+        if let lastShape = shapeManager?.popLastShape() {
             redoStack.append(lastShape)
+            shapeManager?.canRedo = !redoStack.isEmpty
         }
     }
     
     public func redo() {
         if !redoStack.isEmpty, let redoShape = redoStack.popLast() {
-            shapeManager.addShape(shape: redoShape)
+            shapeManager?.addShape(shape: redoShape)
+            shapeManager?.canRedo = !redoStack.isEmpty
         }
+    }
+    
+    public func resetRedo() {
+        redoStack.removeAll()
+        shapeManager?.canRedo = false
     }
 }

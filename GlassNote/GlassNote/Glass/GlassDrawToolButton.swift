@@ -10,13 +10,14 @@ import SwiftUI
 
 struct GlassDrawToolButton: View {
     let systemName: String
-    @State var isSelected: Bool = false
+    let myToolType: ToolType
+    var nowToolType: ToolType
+    var isSelected: Bool = false
     var action: () -> Void
     
     var body: some View {
         Button (action: {
             action()
-            isSelected.toggle()
         }){
             Image(systemName: systemName)
         }
@@ -25,14 +26,14 @@ struct GlassDrawToolButton: View {
         .background(
             RoundedRectangle(cornerRadius: 8, style: .continuous)
                 .fill(
-                    isSelected
+                    myToolType == nowToolType || isSelected
                     ? Color.white.opacity(0.22)
                     : Color.white.opacity(0.08)
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .strokeBorder(
-                            Color.white.opacity(isSelected ? 0.6 : 0.2),
+                            Color.white.opacity(myToolType == nowToolType || isSelected ? 0.6 : 0.2),
                             lineWidth: 1
                         )
                 )

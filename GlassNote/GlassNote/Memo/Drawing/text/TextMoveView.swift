@@ -7,7 +7,6 @@
 import UIKit
 
 protocol TextMoveViewDelegate {
-    func editStart()
     func editEnd(text: String, rect: CGRect)
 }
 
@@ -21,7 +20,7 @@ private enum ActionType {
 public class TextMoveView: UIView {
     
     private let bgView: UIView = {
-       let view = UIView()
+        let view = UIView()
         view.backgroundColor = .clear
         return view
     }()
@@ -32,13 +31,11 @@ public class TextMoveView: UIView {
         textView.textContainerInset = .zero
         textView.contentInset = .zero
         textView.isScrollEnabled = false
-        textView.clipsToBounds = true
-        textView.autocorrectionType = .no
-        textView.backgroundColor = .yellow
+        textView.autocorrectionType = .no //자동수정 끔
+        textView.backgroundColor = .white.withAlphaComponent(0.5)
         textView.isUserInteractionEnabled = true
         textView.isEditable = true
         textView.font = .systemFont(ofSize: 14)
-//        textView.backgroundColor = .clear
         return textView
     }()
     
@@ -46,11 +43,12 @@ public class TextMoveView: UIView {
     private let drawView: IconToggleImageView = IconToggleImageView(systemName: "checkmark.seal", title: "적용")
     private let deleteView: IconToggleImageView = IconToggleImageView(systemName: "trash.circle", title: "삭제")
     private let changePositionView: IconToggleImageView = IconToggleImageView(systemName: "arrow.up.left.and.down.right.and.arrow.up.right.and.down.left", title: "위치")
-
+    
     private var delegate: TextMoveViewDelegate?
     private let actionViewWidth: CGFloat = 35
     private let actionViewHeight: CGFloat = 45
     private var actionType: ActionType = .move
+    
     init(delegate: TextMoveViewDelegate) {
         super.init(frame: .zero)
         textView.delegate = self
@@ -66,9 +64,12 @@ public class TextMoveView: UIView {
         bgView.frame = rect
     }
     
+    func setFontSize(fontSize: CGFloat) {
+        textView.font = .systemFont(ofSize: fontSize)
+    }
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer)
-        -> Bool {
+    -> Bool {
         return true
     }
     
@@ -77,7 +78,7 @@ public class TextMoveView: UIView {
         self.addSubview(bgView)
         self.addSubview(textView)
         
-        textView.frame = CGRect(origin: .zero, size: CGSize(width: 200, height: 200))
+        textView.frame = CGRect(origin: CGPoint(x: 0, y: actionViewHeight), size: CGSize(width: 200, height: 200))
         
         self.addSubview(widthView)
         widthView.isUserInteractionEnabled = false
@@ -124,7 +125,7 @@ public class TextMoveView: UIView {
     }
     
     @objc private func didPan(sender: ImmediatePanGestureRecognizer) {
-      autoreleasepool { _didPan(sender: sender) }
+        autoreleasepool { _didPan(sender: sender) }
     }
     
     private func _didPan(sender: ImmediatePanGestureRecognizer) {
@@ -147,12 +148,34 @@ public class TextMoveView: UIView {
             
             switch self.actionType {
             case .move:
+                let newTvX = p.x - textView.frame.width
+                let newTvY = p.y + textView.frame.height
+                let tvXminusIconView = p.x + widthView.frame.width
+                
+                if newTvX < self.frame.minX || (p.y + widthView.frame.height) < self.frame.minY ||
+                    tvXminusIconView > self.frame.maxX || newTvY > self.frame.maxY {return}
+                
                 let newP = CGPoint(x: p.x - textView.frame.width, y: p.y)
                 textView.frame.origin = newP
                 textView.layoutIfNeeded()
             case .width:
-                let newWidth = abs(p.x - textView.frame.minX)
-                let newHeight = abs(p.y - textView.frame.minY)
+                var x = p.x
+                var y = p.y
+                
+                if p.x > self.frame.maxX {
+                    x = self.frame.maxX - widthView.frame.width
+                } else if p.x < self.frame.minX {
+                    x = self.frame.minX
+                }
+                
+                if p.y > self.frame.maxY {
+                    y = self.frame.maxY
+                } else if p.y < self.frame.minY {
+                    y = self.frame.minY + textView.frame.height + widthView.frame.height
+                }
+                
+                let newWidth = max(x - textView.frame.minX, 10)
+                let newHeight = max(y - textView.frame.minY, 10)
                 textView.frame.size = CGSize(width: newWidth, height: newHeight)
                 textView.layoutIfNeeded()
             case .delete:
@@ -165,11 +188,13 @@ public class TextMoveView: UIView {
             
             switch self.actionType {
             case .move:
-                let newP = makeMovePoint(p: p)
-                textView.frame.origin = newP
+//                let newP = makeMovePoint(p: p)
+//                textView.frame.origin = newP
+                print("end monve")
             case .width:
-                let newRect = makeWidthPoint(p: p)
-                textView.frame = newRect
+//                let newRect = makeWidthPoint(p: p)
+//                textView.frame = newRect
+                print("end width")
             case .delete:
                 delegate?.editEnd(text: "", rect: .zero)
             case .draw:

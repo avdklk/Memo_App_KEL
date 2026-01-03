@@ -35,6 +35,7 @@ public struct TextData: Codable {
     var fontName: String
     var textColor: String
     var explicitWidth: CGFloat
+    var fontSize: CGFloat?
     var boundingRect: CGRect
 }
 

@@ -33,16 +33,18 @@ struct DrawView: View {
         
         VStack {
             HStack {
-                GlassDrawToolButton(systemName: "pencil.tip") {
+                GlassDrawToolButton(systemName: "pencil.tip", myToolType: .pen, nowToolType: toolType) {
                     toolType = .pen
                     shapeManager.tool = PenTool()
+                    isShowTextView = false
                 }
                 .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
                     isShowPenWidth.toggle()
                 }))
                 .popover(isPresented: $isShowPenWidth, arrowEdge: .top) {
-                    Text("펜의 굵기는 \(strokeWidth, specifier: "%.2f") 입니다.")
-                        .frame(width: 180)
+                    Text("펜의 굵기\n\(Int(strokeWidth))")
+                        .multilineTextAlignment(.center)
+                        .frame(width: 180, alignment: .center)
                         .padding([.top, .trailing, .leading], 15)
                         .font(.system(size: 15))
                         .presentationCompactAdaptation(.popover)
@@ -63,23 +65,26 @@ struct DrawView: View {
                     .padding([.bottom, .trailing, .leading], 15)
                 }
                 
-                GlassDrawToolButton(systemName: "square") { //rect
+                GlassDrawToolButton(systemName: "square", myToolType: .rect, nowToolType: toolType) { //rect
                     toolType = .rect
                     shapeManager.tool = RectTool()
+                    isShowTextView = false
                 }
                 
-                GlassDrawToolButton(systemName: "eraser") { //eraser
+                GlassDrawToolButton(systemName: "eraser", myToolType: .eraser, nowToolType: toolType) { //eraser
                     toolType = .eraser
                     let pentool = PenTool()
                     pentool.setEraserMode(isEraser: true)
                     shapeManager.tool = pentool
+                    isShowTextView = false
                 }
                 .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
                     isShowEraserWidth.toggle()
                 }))
                 .popover(isPresented: $isShowEraserWidth, arrowEdge: .top) {
-                    Text("지우개의 굵기는 \(strokeWidth, specifier: "%.2f") 입니다.")
-                        .frame(width: 180)
+                    Text("지우개의 굵기\n\(Int(strokeWidth))")
+                        .multilineTextAlignment(.center)
+                        .frame(width: 180, alignment: .center)
                         .padding([.top, .trailing, .leading], 15)
                         .font(.system(size: 15))
                         .presentationCompactAdaptation(.popover)
@@ -100,7 +105,8 @@ struct DrawView: View {
                     .padding([.bottom, .trailing, .leading], 15)
                 }
                 
-                GlassDrawToolButton(systemName: "t.circle") {
+                GlassDrawToolButton(systemName: "t.circle", myToolType: .text, nowToolType: toolType) {
+                    shapeManager.tool = nil
                     toolType = .text
                     isShowTextView.toggle()
                 }
@@ -108,8 +114,9 @@ struct DrawView: View {
                     isShowTextSize.toggle()
                 }))
                 .popover(isPresented: $isShowTextSize, arrowEdge: .top) {
-                    Text("텍스트 폰트 크기는 \(fontSize, specifier: "%.2f") 입니다.")
-                        .frame(width: 180)
+                    Text("텍스트 폰트 크기\n\(Int(fontSize))")
+                        .multilineTextAlignment(.center)
+                        .frame(width: 180, alignment: .center)
                         .padding([.top, .trailing, .leading], 15)
                         .font(.system(size: 15))
                         .presentationCompactAdaptation(.popover)
@@ -130,12 +137,14 @@ struct DrawView: View {
                     .padding([.bottom, .trailing, .leading], 15)
                 }
                
-                GlassDrawToolButton(systemName: "arrow.uturn.backward.circle") { //undo
+                GlassDrawToolButton(systemName: "arrow.uturn.backward.circle", myToolType: .undo, nowToolType: toolType, isSelected: shapeManager.canUndo) { //undo
                     shapeManager.undo()
+                    isShowTextView = false
                 }
                 
-                GlassDrawToolButton(systemName: "arrow.uturn.forward.circle") { //redo
+                GlassDrawToolButton(systemName: "arrow.uturn.forward.circle", myToolType: .redo, nowToolType: toolType, isSelected: shapeManager.canRedo) { //redo
                     shapeManager.redo()
+                    isShowTextView = false
                 }
                 
                 ColorPicker("", selection: $changedColor)
@@ -163,7 +172,7 @@ struct DrawView: View {
                 )
                 
                 if isShowTextView {
-                    TextView(text: $text, rect: $textRect, isShowTextView: $isShowTextView, userSettings: shapeManager.userSettings)
+                    TextView(text: $text, rect: $textRect, isShowTextView: $isShowTextView, textWidth: $fontSize, userSettings: shapeManager.userSettings)
                 }
             }
         }
@@ -186,6 +195,12 @@ struct DrawView: View {
             let _ = note.addDrawingElement(in: context, id: id, data: drawingShape, type: type)
             try? context.save()
         }
+        .onChange(of: isShowTextView) {  oldValue, newValue in
+            if !newValue {
+                toolType = .pen
+                shapeManager.tool = PenTool()
+            }
+        }
         .onChange(of: changedColor) { oldValue, newValue in
             switch toolType {
             case .pen:
@@ -197,6 +212,8 @@ struct DrawView: View {
                 shapeManager.userSettings.fillColor = UIColor(newValue)
             case .text:
                 shapeManager.userSettings.strokeColor = UIColor(newValue)
+            default:
+                print("default")
             }
         }
         .onAppear {
@@ -214,4 +231,7 @@ enum ToolType {
     case eraser
     case rect
     case text
+    case undo
+    case redo
+    case none
 }

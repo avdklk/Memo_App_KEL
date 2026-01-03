@@ -48,6 +48,7 @@ public class TextShape: Shape, ShapeSelectable {
         self.text = textData.text
         self.fontName = textData.fontName
         self.textColor = UIColor.init(hexString: textData.textColor)
+        self.fontSize = textData.fontSize ?? 14
         self.explicitWidth = textData.explicitWidth
         self.boundingRect = textData.boundingRect
     }
@@ -111,7 +112,7 @@ public class TextShape: Shape, ShapeSelectable {
     }
     
     public func getData() -> DrawingShape {
-        let textData = TextData(id: id, transform: transform, text: text, fontName: fontName, textColor: textColor.hexString, explicitWidth: explicitWidth ?? 5, boundingRect: boundingRect)
+        let textData = TextData(id: id, transform: transform, text: text, fontName: fontName, textColor: textColor.hexString, explicitWidth: explicitWidth ?? 5, fontSize: fontSize, boundingRect: boundingRect)
         return DrawingShape.text(textData)
     }
 }
