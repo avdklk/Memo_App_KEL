@@ -150,10 +150,10 @@ public class TextMoveView: UIView {
             case .move:
                 let newTvX = p.x - textView.frame.width
                 let newTvY = p.y + textView.frame.height
-                let tvXminusIconView = p.x + widthView.frame.width
+                let tvXPlusIconView = p.x + widthView.frame.width
                 
                 if newTvX < self.frame.minX || (p.y + widthView.frame.height) < self.frame.minY ||
-                    tvXminusIconView > self.frame.maxX || newTvY > self.frame.maxY {return}
+                    tvXPlusIconView > self.frame.maxX || newTvY > self.frame.maxY {return}
                 
                 let newP = CGPoint(x: p.x - textView.frame.width, y: p.y)
                 textView.frame.origin = newP
@@ -162,7 +162,7 @@ public class TextMoveView: UIView {
                 var x = p.x
                 var y = p.y
                 
-                if p.x > self.frame.maxX {
+                if p.x > self.frame.maxX - widthView.frame.width  {
                     x = self.frame.maxX - widthView.frame.width
                 } else if p.x < self.frame.minX {
                     x = self.frame.minX
@@ -170,12 +170,12 @@ public class TextMoveView: UIView {
                 
                 if p.y > self.frame.maxY {
                     y = self.frame.maxY
-                } else if p.y < self.frame.minY {
+                } else if p.y < self.frame.minY + widthView.frame.height {
                     y = self.frame.minY + textView.frame.height + widthView.frame.height
                 }
                 
-                let newWidth = max(x - textView.frame.minX, 10)
-                let newHeight = max(y - textView.frame.minY, 10)
+                let newWidth = max(x - textView.frame.minX, 0)
+                let newHeight = max(y - textView.frame.minY, 0)
                 textView.frame.size = CGSize(width: newWidth, height: newHeight)
                 textView.layoutIfNeeded()
             case .delete:
@@ -184,8 +184,6 @@ public class TextMoveView: UIView {
                 print("none changed")
             }
         case .ended:
-            let p = sender.location(in: self)
-            
             switch self.actionType {
             case .move:
 //                let newP = makeMovePoint(p: p)
@@ -200,6 +198,8 @@ public class TextMoveView: UIView {
             case .draw:
                 delegate?.editEnd(text: textView.text, rect: textView.frame)
             }
+            
+            self.endEditing(true)
         case .cancelled:
             print("cancelled")
         case .failed:

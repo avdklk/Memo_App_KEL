@@ -23,7 +23,7 @@ extension NoteElement {
             do {
                 return try JSONDecoder().decode(DrawingShape.self, from: data)
             } catch {
-                print("디코딩 실패: \(error)")
+                print("디코딩 실패: \(error.localizedDescription)")
                 return nil
             }
         }
@@ -34,16 +34,16 @@ extension NoteElement {
                 self.drawingShape = data
                 
                 switch newValue {
-                case .pen: self.type = "pen"
-                case .rect: self.type = "rect"
-                case .text: self.type = "text"
+                case .pen: self.type = NoteElementType.text.rawValue
+                case .rect: self.type = NoteElementType.rect.rawValue
+                case .text: self.type = NoteElementType.text.rawValue
                 }
             } catch {
                 print("디코딩 실패: \(error)")
             }
         }
     }
-    /// 스케치/드로잉 요소 생성 (PencilKit 등)
+    
     static func createDrawing(
         in context: NSManagedObjectContext,
         id: UUID,
@@ -60,12 +60,11 @@ extension NoteElement {
         return element
     }
     
-    /// 요소 타입 확인
     var elementType: NoteElementType? {
         guard let type = type else {return nil}
         return NoteElementType(rawValue: type)
     }
-
+    
 }
 
 //MARK: - Note 헬퍼 메서드
@@ -95,11 +94,6 @@ extension Note {
             }
         }
         return shapes
-    }
-    /// 다음 순서 번호 반환
-    var nextElementId: UUID? {
-        let maxOrder = sortedElements.last?.id
-        return maxOrder
     }
     
     /// 드로잉 요소 추가

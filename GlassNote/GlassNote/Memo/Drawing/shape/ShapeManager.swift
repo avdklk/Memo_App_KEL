@@ -23,25 +23,8 @@ public class ShapeManager: ObservableObject {
         self.note = note
     }
     
-    public var drawing: Drawing = Drawing(size: CGSize(width: 320, height: 320)) {
-        didSet {
-            tool?.deactivate(shapeManager: self)
-            operationStack = DrawingOperationStack(shapeManager: self)
-            drawing.size = self.size
-            tool?.activate(shapeUpdater: self, shapeManager: self)
-            //        applyToolSettingsChanges()
-            //          applySelectionViewState()
-            rerenderAllShapesInefficiently()
-            //        if let tool = tool {
-            //          delegate?.drawsanaView(self, didSwitchTo: tool)
-            //        }
-        }
-    }
-    
     public lazy var undoRedoManager: UndoRedoManager = UndoRedoManager(shapeManager: self)
-    public lazy var operationStack: DrawingOperationStack = {
-        return DrawingOperationStack(shapeManager: self)
-    }()
+    public var size: CGSize = .zero
     public var userSettings: UserSettings = UserSettings(
         strokeColor: .blue,
         fillColor: .blue,
@@ -50,13 +33,6 @@ public class ShapeManager: ObservableObject {
         fontSize: 15,
         fontColor: .blue,
         eraserWidth: 15)
-    
-    public var toolSettings: ToolSettings = ToolSettings(
-        selectedShape: nil,
-        interactiveView: nil,
-        isPersistentBufferDirty: false)
-    
-    public var size: CGSize = .zero
     
     public func setSize(size: CGSize) {
         self.size = size

@@ -33,7 +33,9 @@ struct NoteDetailView: View {
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .animation(.easeOut(duration: 0.16), value: keyboardHeight)
             .onReceive(Publishers.keyboardHeight) { height in
-                self.keyboardHeight = (height / 2)
+                if !isTitleFocused {
+                    self.keyboardHeight = (height / 2)
+                }
             }
         }
         .onAppear {
@@ -93,7 +95,7 @@ extension NoteDetailView {
     
     private var contentArea: some View {
         GlassContainer {
-            VStack(spacing: 20) {
+            VStack(spacing: 0) {
                 DrawView(note: note, context: context)
 //                Text("여기에 넣으면 됩니다.")
 //                    .font(.system(size: 14))
