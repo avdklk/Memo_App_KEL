@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct NoteDetailView: View {
     @ObservedObject var note: Note
@@ -15,6 +16,7 @@ struct NoteDetailView: View {
     @State private var editingTitle: String = ""
     @State private var isEditingTitle: Bool = false
     @FocusState private var isTitleFocused: Bool
+    @State private var keyboardHeight: CGFloat = 0
     
     var body: some View {
         ZStack {
@@ -27,9 +29,18 @@ struct NoteDetailView: View {
                 //MARK: - Content Area (스케치 / 메모 등 도형 같은거 로직 넣는곳)
                 contentArea
             }
+            .offset(y: -keyboardHeight)
+            .ignoresSafeArea(.keyboard, edges: .bottom)
+            .animation(.easeOut(duration: 0.16), value: keyboardHeight)
+            .onReceive(Publishers.keyboardHeight) { height in
+                self.keyboardHeight = (height / 2)
+            }
         }
         .onAppear {
             editingTitle = note.title ?? "Untitled"
+        }
+        .onTapGesture {
+            hideKeyboard()
         }
     }
 }
@@ -76,8 +87,8 @@ extension NoteDetailView {
                 saveNote()
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 16)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 10)
     }
     
     private var contentArea: some View {
@@ -90,8 +101,7 @@ extension NoteDetailView {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 20)
+        .padding(.horizontal, 10)
     }
 }
 
@@ -116,5 +126,20 @@ extension NoteDetailView {
         } catch {
             print("저장 실패: \(error)")
         }
+    }
+}
+
+extension Publishers {
+    static var keyboardHeight: AnyPublisher<CGFloat, Never> {
+        let willShow = NotificationCenter.default.publisher(for: UIApplication.keyboardWillShowNotification)
+            .map { notification -> CGFloat in
+                (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect)?.height ?? 0
+            }
+        
+        let willHide = NotificationCenter.default.publisher(for: UIApplication.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+        
+        return Merge(willShow, willHide)
+            .eraseToAnyPublisher()
     }
 }

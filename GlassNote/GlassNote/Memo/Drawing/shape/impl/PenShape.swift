@@ -27,7 +27,7 @@ public struct PenLineSegment: Codable, Equatable {
 public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithStrokeState {
     
     private enum CodingKeys: String, CodingKey {
-      case id, isFinished, strokeColor, start, strokeWidth, segments, isEraser, type , transform
+      case id, isFinished, strokeColor, start, strokeWidth, segments, isEraser, type , transform, eraserWidth
     }
     
     public let type: String = "Pen"
@@ -110,6 +110,7 @@ public class PenShape: Shape, ShapeWithBoundingRect, ShapeSelectable, ShapeWithS
     private func render(in context: CGContext, onlyLast: Bool = false) {
       transform.begin(context: context)
       context.saveGState()
+    
       if isEraser {
         context.setBlendMode(.clear)
       }

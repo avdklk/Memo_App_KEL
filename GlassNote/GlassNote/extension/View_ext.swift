@@ -7,24 +7,33 @@
 import SwiftUI
 
 extension View {
-//    func gestureRecognizer() -> some View {
-//        self.simultaneousGesture(
-//            SimultaneousGesture(
-//                TapGesture(count: 1).onEnded({ _ in
-//                    print("tap")
-//                    print("tap \(Date())")
-//                }),
-//                DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged({ value in
-//                    print("start \(value.location.x)")
-//                    print("start \(value.time)")
-//                })
-//                .onEnded({ value in
-//                    print("end \(value.location.x)")
-//                    print("end \(value.time)")
-//                })
-//            ).onEnded({ value in
-//                <#code#>
-//            })
-//        )
-//    }
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+    
+    func widthTooltip(isPresented: Binding<Bool>, title: String, toSize: CGFloat, value: Binding<CGFloat> ) -> some View {
+        self.popover(isPresented: isPresented, arrowEdge: .top) {
+            Text("\(title)\n\(Int(value.wrappedValue))")
+                .multilineTextAlignment(.center)
+                .frame(width: 180, alignment: .center)
+                .padding([.top, .trailing, .leading], 15)
+                .font(.system(size: 15))
+                .presentationCompactAdaptation(.popover)
+            
+            Slider(value: value, in: 1...toSize)
+                .padding([.trailing, .leading], 15)
+            
+            HStack {
+                Text("1")
+                    .font(.system(size: 15))
+                Spacer()
+                Text("\(Int(toSize / 2))")
+                    .font(.system(size: 15))
+                Spacer()
+                Text("\(Int(toSize))")
+                    .font(.system(size: 15))
+            }
+            .padding([.bottom, .trailing, .leading], 15)
+        }
+    }
 }

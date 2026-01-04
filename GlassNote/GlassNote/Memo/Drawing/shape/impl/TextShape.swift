@@ -106,7 +106,7 @@ public class TextShape: Shape, ShapeSelectable {
     }
     
     public func apply(userSettings: UserSettings) {
-        textColor = userSettings.strokeColor ?? .black
+        textColor = userSettings.fontColor 
         fontName = userSettings.fontName
         fontSize = userSettings.fontSize
     }

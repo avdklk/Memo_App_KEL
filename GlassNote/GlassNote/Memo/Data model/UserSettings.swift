@@ -37,26 +37,33 @@ public class UserSettings {
       delegate?.userSettings(self, didChangeFontName: fontName)
     }
   }
+    
   public var fontSize: CGFloat {
     didSet {
       guard fontSize != oldValue else { return }
       delegate?.userSettings(self, didChangeFontSize: fontSize)
     }
   }
-
-  init(
-    strokeColor: UIColor?,
-    fillColor: UIColor?,
-    strokeWidth: CGFloat,
-    fontName: String,
-    fontSize: CGFloat)
-  {
-    self.strokeColor = strokeColor
-    self.fillColor = fillColor
-    self.strokeWidth = strokeWidth
-    self.fontName = fontName
-    self.fontSize = fontSize
-  }
+    public var fontColor: UIColor
+    public var eraserWidth: CGFloat
+    
+    init(
+        strokeColor: UIColor?,
+        fillColor: UIColor?,
+        strokeWidth: CGFloat,
+        fontName: String,
+        fontSize: CGFloat,
+        fontColor: UIColor,
+        eraserWidth: CGFloat)
+    {
+        self.strokeColor = strokeColor
+        self.fillColor = fillColor
+        self.strokeWidth = strokeWidth
+        self.fontName = fontName
+        self.fontSize = fontSize
+        self.fontColor = fontColor
+        self.eraserWidth = eraserWidth
+    }
 }
 
 protocol UserSettingsDelegate: AnyObject {

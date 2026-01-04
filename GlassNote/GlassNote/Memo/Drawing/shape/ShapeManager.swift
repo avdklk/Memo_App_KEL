@@ -17,7 +17,7 @@ public class ShapeManager: ObservableObject {
     
     private var context: NSManagedObjectContext
     var note: Note
-
+    
     init(context: NSManagedObjectContext, note: Note) {
         self.context = context
         self.note = note
@@ -44,10 +44,12 @@ public class ShapeManager: ObservableObject {
     }()
     public var userSettings: UserSettings = UserSettings(
         strokeColor: .blue,
-        fillColor: .yellow,
-        strokeWidth: 10,
+        fillColor: .blue,
+        strokeWidth: 8,
         fontName: "Helvetica Neue",
-        fontSize: 14)
+        fontSize: 15,
+        fontColor: .blue,
+        eraserWidth: 15)
     
     public var toolSettings: ToolSettings = ToolSettings(
         selectedShape: nil,

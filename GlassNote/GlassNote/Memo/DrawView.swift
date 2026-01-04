@@ -10,6 +10,7 @@ import CoreData
 struct DrawView: View {
     @Environment(\.managedObjectContext) private var context
     @ObservedObject var note: Note
+    
     @State private var didLoad = false
     @StateObject private var shapeManager: ShapeManager
     @State var point: CGPoint = .zero
@@ -19,10 +20,8 @@ struct DrawView: View {
     @State var isShowTextSize: Bool = false
     @State var text: String = ""
     @State var textRect: CGRect = .zero
-    @State var changedColor: Color = .black
+    @State var changedColor: Color = .blue
     @State var toolType: ToolType = .pen
-    @State var strokeWidth: CGFloat = 8
-    @State var fontSize: CGFloat = 15
     
     init(note: Note, context: NSManagedObjectContext) {
         self.note = note
@@ -32,155 +31,15 @@ struct DrawView: View {
     var body: some View {
         
         VStack {
-            HStack {
-                GlassDrawToolButton(systemName: "pencil.tip", myToolType: .pen, nowToolType: toolType) {
-                    toolType = .pen
-                    shapeManager.tool = PenTool()
-                    isShowTextView = false
-                }
-                .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
-                    isShowPenWidth.toggle()
-                }))
-                .popover(isPresented: $isShowPenWidth, arrowEdge: .top) {
-                    Text("펜의 굵기\n\(Int(strokeWidth))")
-                        .multilineTextAlignment(.center)
-                        .frame(width: 180, alignment: .center)
-                        .padding([.top, .trailing, .leading], 15)
-                        .font(.system(size: 15))
-                        .presentationCompactAdaptation(.popover)
-                    
-                    Slider(value: $strokeWidth, in: 1...16)
-                        .padding([.trailing, .leading], 15)
-                    
-                    HStack {
-                        Text("1")
-                            .font(.system(size: 15))
-                        Spacer()
-                        Text("8")
-                            .font(.system(size: 15))
-                        Spacer()
-                        Text("16")
-                            .font(.system(size: 15))
-                    }
-                    .padding([.bottom, .trailing, .leading], 15)
-                }
-                
-                GlassDrawToolButton(systemName: "square", myToolType: .rect, nowToolType: toolType) { //rect
-                    toolType = .rect
-                    shapeManager.tool = RectTool()
-                    isShowTextView = false
-                }
-                
-                GlassDrawToolButton(systemName: "eraser", myToolType: .eraser, nowToolType: toolType) { //eraser
-                    toolType = .eraser
-                    let pentool = PenTool()
-                    pentool.setEraserMode(isEraser: true)
-                    shapeManager.tool = pentool
-                    isShowTextView = false
-                }
-                .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
-                    isShowEraserWidth.toggle()
-                }))
-                .popover(isPresented: $isShowEraserWidth, arrowEdge: .top) {
-                    Text("지우개의 굵기\n\(Int(strokeWidth))")
-                        .multilineTextAlignment(.center)
-                        .frame(width: 180, alignment: .center)
-                        .padding([.top, .trailing, .leading], 15)
-                        .font(.system(size: 15))
-                        .presentationCompactAdaptation(.popover)
-                    
-                    Slider(value: $strokeWidth, in: 1...16)
-                        .padding([.trailing, .leading], 15)
-                    
-                    HStack {
-                        Text("1")
-                            .font(.system(size: 15))
-                        Spacer()
-                        Text("8")
-                            .font(.system(size: 15))
-                        Spacer()
-                        Text("16")
-                            .font(.system(size: 15))
-                    }
-                    .padding([.bottom, .trailing, .leading], 15)
-                }
-                
-                GlassDrawToolButton(systemName: "t.circle", myToolType: .text, nowToolType: toolType) {
-                    shapeManager.tool = nil
-                    toolType = .text
-                    isShowTextView.toggle()
-                }
-                .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
-                    isShowTextSize.toggle()
-                }))
-                .popover(isPresented: $isShowTextSize, arrowEdge: .top) {
-                    Text("텍스트 폰트 크기\n\(Int(fontSize))")
-                        .multilineTextAlignment(.center)
-                        .frame(width: 180, alignment: .center)
-                        .padding([.top, .trailing, .leading], 15)
-                        .font(.system(size: 15))
-                        .presentationCompactAdaptation(.popover)
-                    
-                    Slider(value: $fontSize, in: 1...30)
-                        .padding([.trailing, .leading], 15)
-                    
-                    HStack {
-                        Text("1")
-                            .font(.system(size: 15))
-                        Spacer()
-                        Text("15")
-                            .font(.system(size: 15))
-                        Spacer()
-                        Text("30")
-                            .font(.system(size: 15))
-                    }
-                    .padding([.bottom, .trailing, .leading], 15)
-                }
-               
-                GlassDrawToolButton(systemName: "arrow.uturn.backward.circle", myToolType: .undo, nowToolType: toolType, isSelected: shapeManager.canUndo) { //undo
-                    shapeManager.undo()
-                    isShowTextView = false
-                }
-                
-                GlassDrawToolButton(systemName: "arrow.uturn.forward.circle", myToolType: .redo, nowToolType: toolType, isSelected: shapeManager.canRedo) { //redo
-                    shapeManager.redo()
-                    isShowTextView = false
-                }
-                
-                ColorPicker("", selection: $changedColor)
-            }
+            toolView
             
             ZStack {
-                Canvas { context, size in
-                    context.withCGContext { cgContext in
-                        for shape in shapeManager.shapes {
-                            shape.render(in: cgContext)
-                        }
-                    }
-                }
-                .simultaneousGesture(SimultaneousGesture(TapGesture(count: 1).onEnded({ _ in
-                    print("tab")
-                }), DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged{ value in
-                    if shapeManager.isStart {
-                        shapeManager.drawStart(point: value.location)
-                    } else {
-                        shapeManager.drawContinue(point: value.location)
-                    }
-                }.onEnded{ value in
-                    shapeManager.drawEnd(point: value.location)
-                })
-                )
+                drawingView
                 
                 if isShowTextView {
-                    TextView(text: $text, rect: $textRect, isShowTextView: $isShowTextView, textWidth: $fontSize, userSettings: shapeManager.userSettings)
+                    TextView(text: $text, rect: $textRect, isShowTextView: $isShowTextView, textWidth: $shapeManager.userSettings.fontSize, userSettings: shapeManager.userSettings)
                 }
             }
-        }
-        .onChange(of:fontSize) { oldValue, newValue in
-            shapeManager.userSettings.fontSize = newValue
-        }
-        .onChange(of: strokeWidth) { oldValue, newValue in
-            shapeManager.userSettings.strokeWidth = newValue
         }
         .onChange(of: text) { oldValue, newValue in
             isShowTextView = false
@@ -189,11 +48,7 @@ struct DrawView: View {
             textShape.boundingRect = textRect
             textShape.apply(userSettings: shapeManager.userSettings)
             shapeManager.addShape(shape: textShape)
-            
-            guard let id = UUID(uuidString: textShape.id), let type = NoteElementType(rawValue: textShape.type),  let drawingShape = textShape.getData().toData() else {return}
-            
-            let _ = note.addDrawingElement(in: context, id: id, data: drawingShape, type: type)
-            try? context.save()
+            shapeManager.saveNewNoteElement()
         }
         .onChange(of: isShowTextView) {  oldValue, newValue in
             if !newValue {
@@ -208,10 +63,9 @@ struct DrawView: View {
             case .eraser:
                 print("eraser")
             case .rect:
-                shapeManager.userSettings.strokeColor = UIColor(newValue)
                 shapeManager.userSettings.fillColor = UIColor(newValue)
             case .text:
-                shapeManager.userSettings.strokeColor = UIColor(newValue)
+                shapeManager.userSettings.fontColor = UIColor(newValue)
             default:
                 print("default")
             }
@@ -226,6 +80,86 @@ struct DrawView: View {
     }
 }
 
+extension DrawView {
+    private var toolView: some View {
+        HStack {
+            GlassDrawToolButton(systemName: "pencil.tip", myToolType: .pen, nowToolType: toolType) {
+                toolType = .pen
+                shapeManager.tool = PenTool()
+                changedColor = Color(shapeManager.userSettings.strokeColor ?? .blue)
+                isShowTextView = false
+            }
+            .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                isShowPenWidth.toggle()
+            }))
+            .widthTooltip(isPresented: $isShowPenWidth, title: "펜의 굵기", toSize: 16, value: $shapeManager.userSettings.strokeWidth)
+            
+            GlassDrawToolButton(systemName: "square", myToolType: .rect, nowToolType: toolType) { //rect
+                toolType = .rect
+                shapeManager.tool = RectTool()
+                changedColor = Color(shapeManager.userSettings.fillColor ?? .blue)
+                isShowTextView = false
+            }
+            
+            GlassDrawToolButton(systemName: "eraser", myToolType: .eraser, nowToolType: toolType) { //eraser
+                toolType = .eraser
+                let pentool = PenTool()
+                pentool.setEraserMode(isEraser: true)
+                shapeManager.tool = pentool
+                isShowTextView = false
+            }
+            .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                isShowEraserWidth.toggle()
+            }))
+            .widthTooltip(isPresented: $isShowEraserWidth, title: "지우개의 굵기", toSize: 30, value: $shapeManager.userSettings.eraserWidth)
+            
+            GlassDrawToolButton(systemName: "t.circle", myToolType: .text, nowToolType: toolType) {
+                shapeManager.tool = nil
+                toolType = .text
+                isShowTextView.toggle()
+                changedColor = Color(shapeManager.userSettings.fontColor)
+            }
+            .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                isShowTextSize.toggle()
+            }))
+            .widthTooltip(isPresented: $isShowTextSize, title: "텍스트 크기", toSize: 30, value: $shapeManager.userSettings.fontSize)
+            
+            GlassDrawToolButton(systemName: "arrow.uturn.backward.circle", myToolType: .undo, nowToolType: toolType, isSelected: shapeManager.canUndo) { //undo
+                shapeManager.undo()
+                isShowTextView = false
+            }
+            
+            GlassDrawToolButton(systemName: "arrow.uturn.forward.circle", myToolType: .redo, nowToolType: toolType, isSelected: shapeManager.canRedo) { //redo
+                shapeManager.redo()
+                isShowTextView = false
+            }
+            
+            ColorPicker("", selection: $changedColor)
+        }
+    }
+    
+    private var drawingView: some View {
+        Canvas { context, size in
+            context.withCGContext { cgContext in
+                for shape in shapeManager.shapes {
+                    shape.render(in: cgContext)
+                }
+            }
+        }
+        .simultaneousGesture(SimultaneousGesture(TapGesture(count: 1).onEnded({ _ in
+            print("tab")
+        }), DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged{ value in
+            if shapeManager.isStart {
+                shapeManager.drawStart(point: value.location)
+            } else {
+                shapeManager.drawContinue(point: value.location)
+            }
+        }.onEnded{ value in
+            shapeManager.drawEnd(point: value.location)
+        })
+        )
+    }
+}
 enum ToolType {
     case pen
     case eraser
