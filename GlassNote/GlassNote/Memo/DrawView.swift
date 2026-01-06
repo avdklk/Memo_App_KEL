@@ -22,6 +22,12 @@ struct DrawView: View {
     @State var textRect: CGRect = .zero
     @State var changedColor: Color = .blue
     @State var toolType: ToolType = .pen
+    @State private var showCamera = false
+    @State private var selectedImage: UIImage?
+    @State private var isPickerPresented = false
+    @State private var isApplyText = false
+    
+    private let recognizer = TextRecognizer()
     
     init(note: Note, context: NSManagedObjectContext) {
         self.note = note
@@ -37,23 +43,29 @@ struct DrawView: View {
                 drawingView
                 
                 if isShowTextView {
-                    TextView(text: $text, rect: $textRect, isShowTextView: $isShowTextView, textWidth: $shapeManager.userSettings.fontSize, userSettings: shapeManager.userSettings)
+                    TextView(text: $text, rect: $textRect, isApplyText: $isApplyText,isShowTextView: $isShowTextView,  textWidth: $shapeManager.userSettings.fontSize, userSettings: shapeManager.userSettings)
                 }
             }
         }
-        .onChange(of: text) { oldValue, newValue in
-            isShowTextView = false
-            let textShape = TextShape()
-            textShape.text = text
-            textShape.boundingRect = textRect
-            textShape.apply(userSettings: shapeManager.userSettings)
-            shapeManager.addShape(shape: textShape)
-            shapeManager.saveNewNoteElement()
+        .onChange(of: isApplyText) { oldValue, newValue in
+            if newValue {
+                isShowTextView = false
+                isApplyText = false
+                let textShape = TextShape()
+                textShape.text = text
+                textShape.boundingRect = textRect
+                textShape.apply(userSettings: shapeManager.userSettings)
+                shapeManager.addShape(shape: textShape)
+                shapeManager.saveNewNoteElement()
+                text = ""
+            }
         }
         .onChange(of: isShowTextView) {  oldValue, newValue in
             if !newValue {
                 toolType = .pen
                 shapeManager.tool = PenTool()
+                changedColor = Color(shapeManager.userSettings.strokeColor ?? .blue)
+                text = ""
             }
         }
         .onChange(of: changedColor) { oldValue, newValue in
@@ -70,12 +82,32 @@ struct DrawView: View {
                 print("default")
             }
         }
+        .onChange(of: selectedImage, { oldValue, newValue in
+            shapeManager.tool = nil
+            toolType = .text
+            isShowTextView = true
+            changedColor = Color(shapeManager.userSettings.fontColor)
+            
+            if let image = selectedImage {
+                recognizer.recognizeText(from: image) { text in
+                    self.text = text
+                }
+            }
+        })
         .onAppear {
             if !didLoad {
                 didLoad = true
                 shapeManager.getShape()
+                toolType = .pen
                 shapeManager.tool = PenTool()
             }
+        }
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker(image: $selectedImage)
+                .ignoresSafeArea()
+        }
+        .sheet(isPresented: $isPickerPresented) {
+            PhotoPicker(image: $selectedImage)
         }
     }
 }
@@ -122,7 +154,17 @@ extension DrawView {
             .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
                 isShowTextSize.toggle()
             }))
-            .widthTooltip(isPresented: $isShowTextSize, title: "텍스트 크기", toSize: 30, value: $shapeManager.userSettings.fontSize)
+            .tooltip(isPresented: $isShowTextSize, title: "텍스트 크기", toSize: 30, value: $shapeManager.userSettings.fontSize) {
+                HStack(alignment: .center, spacing: 10) {
+                    GlassDrawToolButton(systemName: "camera", myToolType: nil, nowToolType: nil, isSelected: false) {
+                        showCamera = true
+                    }
+                    
+                    GlassDrawToolButton(systemName: "photo", myToolType: nil, nowToolType: nil, isSelected: false) {
+                        isPickerPresented = true
+                    }
+                }
+            }
             
             GlassDrawToolButton(systemName: "arrow.uturn.backward.circle", myToolType: .undo, nowToolType: toolType, isSelected: shapeManager.canUndo) { //undo
                 shapeManager.undo()

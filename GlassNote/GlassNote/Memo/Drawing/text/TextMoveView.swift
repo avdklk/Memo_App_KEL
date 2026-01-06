@@ -8,6 +8,7 @@ import UIKit
 
 protocol TextMoveViewDelegate {
     func editEnd(text: String, rect: CGRect)
+    func editCancel()
 }
 
 private enum ActionType {
@@ -66,6 +67,10 @@ public class TextMoveView: UIView {
     
     func setFontSize(fontSize: CGFloat) {
         textView.font = .systemFont(ofSize: fontSize)
+    }
+    
+    func setText(text: String) {
+        textView.text = text
     }
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                            shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer)
@@ -194,7 +199,7 @@ public class TextMoveView: UIView {
 //                textView.frame = newRect
                 print("end width")
             case .delete:
-                delegate?.editEnd(text: "", rect: .zero)
+                delegate?.editCancel()
             case .draw:
                 delegate?.editEnd(text: textView.text, rect: textView.frame)
             }
