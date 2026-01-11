@@ -84,7 +84,6 @@ public class TextMoveView: UIView {
         self.addSubview(textView)
         
         textView.frame = CGRect(origin: CGPoint(x: 0, y: actionViewHeight), size: CGSize(width: 200, height: 200))
-        
         self.addSubview(widthView)
         widthView.isUserInteractionEnabled = false
         widthView.translatesAutoresizingMaskIntoConstraints = false
@@ -127,6 +126,8 @@ public class TextMoveView: UIView {
         let panGR = ImmediatePanGestureRecognizer(target: self, action: #selector(didPan(sender:)))
         panGR.cancelsTouchesInView = false
         bgView.addGestureRecognizer(panGR)
+        
+        hidden(isHidden: true)
     }
     
     @objc private func didPan(sender: ImmediatePanGestureRecognizer) {
@@ -139,7 +140,26 @@ public class TextMoveView: UIView {
             print("possible")
         case .began:
             let p = sender.location(in: self)
-            if changePositionView.frame.contains(p) {
+            
+            if textView.isHidden {
+                let newTvX = p.x + textView.frame.width + widthView.frame.width
+                let newTvY = p.y + textView.frame.height
+                var newX = p.x
+                var newY = p.y
+                
+                if newTvX >= self.frame.maxX {
+                    newX = self.frame.maxX - textView.frame.width - widthView.frame.width
+                } else if p.x < self.frame.minX {
+                    newX = self.frame.minX
+                }
+//
+//                if newTvY >= self.frame.maxY {
+//                    newY = p.y - textView.frame.height
+//                }
+                textView.frame = CGRect(x: newX, y: p.y, width: 150, height: 100)
+                hidden(isHidden: false)
+                
+            }else if changePositionView.frame.contains(p) {
                 actionType = .move
             } else if widthView.frame.contains(p) {
                 actionType = .width
@@ -158,7 +178,7 @@ public class TextMoveView: UIView {
                 let tvXPlusIconView = p.x + widthView.frame.width
                 
                 if newTvX < self.frame.minX || (p.y + widthView.frame.height) < self.frame.minY ||
-                    tvXPlusIconView > self.frame.maxX || newTvY > self.frame.maxY {return}
+                    tvXPlusIconView > self.frame.maxX /*|| newTvY > self.frame.maxY*/ {return}
                 
                 let newP = CGPoint(x: p.x - textView.frame.width, y: p.y)
                 textView.frame.origin = newP
@@ -173,9 +193,10 @@ public class TextMoveView: UIView {
                     x = self.frame.minX
                 }
                 
-                if p.y > self.frame.maxY {
-                    y = self.frame.maxY
-                } else if p.y < self.frame.minY + widthView.frame.height {
+//                if p.y > self.frame.maxY {
+//                    y = self.frame.maxY
+//                } else
+                if p.y < self.frame.minY + widthView.frame.height {
                     y = self.frame.minY + textView.frame.height + widthView.frame.height
                 }
                 
@@ -267,6 +288,14 @@ public class TextMoveView: UIView {
             newRect.size.height = newHeight
         }
         return newRect
+    }
+    
+    private func hidden(isHidden: Bool) {
+        textView.isHidden = isHidden
+        widthView.isHidden = isHidden
+        deleteView.isHidden = isHidden
+        changePositionView.isHidden = isHidden
+        drawView.isHidden = isHidden
     }
 }
 
