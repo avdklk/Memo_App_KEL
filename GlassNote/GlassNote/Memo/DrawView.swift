@@ -155,7 +155,7 @@ extension DrawView {
                     .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
                         isShowPenWidth.toggle()
                     }))
-                    .widthTooltip(isPresented: $isShowPenWidth, title: "펜의 굵기", toSize: 16, value: $shapeManager.userSettings.strokeWidth)
+                    .tooltip(isPresented: $isShowPenWidth, title: "펜의 굵기", toSize: 25, value: $shapeManager.userSettings.strokeWidth, color: $changedColor, toolWidthArr: [3, 5, 10, 15, 25])
                     
                     GlassDrawToolButton(systemName: "square", myToolType: .rect, nowToolType: toolType) { //rect
                         toolType = .rect
@@ -174,7 +174,7 @@ extension DrawView {
                     .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
                         isShowEraserWidth.toggle()
                     }))
-                    .widthTooltip(isPresented: $isShowEraserWidth, title: "지우개의 굵기", toSize: 30, value: $shapeManager.userSettings.eraserWidth)
+                    .tooltip(isPresented: $isShowEraserWidth, title: "지우개의 굵기", toSize: 25, value: $shapeManager.userSettings.eraserWidth, toolWidthArr: [3, 5, 10, 15, 25])
                     
                     GlassDrawToolButton(systemName: "t.circle", myToolType: .text, nowToolType: toolType) {
                         shapeManager.tool = nil
@@ -185,7 +185,7 @@ extension DrawView {
                     .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
                         isShowTextSize.toggle()
                     }))
-                    .tooltip(isPresented: $isShowTextSize, title: "텍스트 크기", toSize: 30, value: $shapeManager.userSettings.fontSize) {
+                    .tooltip(isPresented: $isShowTextSize, title: "텍스트 크기", toSize: 30, value: $shapeManager.userSettings.fontSize, color: $changedColor, toolWidthArr: [10, 15, 20, 25, 30]) {
                         HStack(alignment: .center, spacing: 10) {
                             GlassDrawToolButton(systemName: "camera", myToolType: nil, nowToolType: nil, isSelected: false) {
                                 showCamera = true

@@ -37,7 +37,7 @@ extension View {
         }
     }
     
-    func tooltip(isPresented: Binding<Bool>, title: String, toSize: CGFloat, value: Binding<CGFloat>, contents: @escaping () -> some View) -> some View {
+    func tooltip<Content: View>(isPresented: Binding<Bool>, title: String, toSize: CGFloat, value: Binding<CGFloat>, color: Binding<Color>? = nil, toolWidthArr: [CGFloat], contents: @escaping() -> Content) -> some View {
         self.popover(isPresented: isPresented, arrowEdge: .top) {
             VStack {
                 Text("\(title)\n\(Int(value.wrappedValue))")
@@ -73,6 +73,52 @@ extension View {
                     .frame(height: 1)
                     .background(Color.white)
                 
+                HStack(alignment: .center, spacing: 20) {
+                    Button(action: {
+                        value.wrappedValue = toolWidthArr[0]
+                    }, label: { // label: 생략 가능
+                        Circle()
+                            .fill(color?.wrappedValue ?? .white)
+                            .frame(width: 5, height: 5)
+                    })
+                    
+                    Button(action: {
+                        value.wrappedValue = toolWidthArr[1]
+                    }, label: { // label: 생략 가능
+                        Circle()
+                            .fill(color?.wrappedValue ?? .white)
+                            .frame(width: 10, height: 10)
+                    })
+                    
+                    Button(action: {
+                        value.wrappedValue = toolWidthArr[2]
+                    }, label: { // label: 생략 가능
+                        Circle()
+                            .fill(color?.wrappedValue ?? .white)
+                            .frame(width: 15, height: 15)
+                    })
+                    
+                    Button(action: {
+                        value.wrappedValue = toolWidthArr[3]
+                    }, label: { // label: 생략 가능
+                        Circle()
+                            .fill(color?.wrappedValue ?? .white)
+                            .frame(width: 20, height: 20)
+                    })
+                    
+                    Button(action: {
+                        value.wrappedValue = toolWidthArr[4]
+                    }, label: { // label: 생략 가능
+                        Circle()
+                            .fill(color?.wrappedValue ?? .white)
+                            .frame(width: 25, height: 25)
+                    })
+                }
+                
+                Divider()
+                    .frame(height: 1)
+                    .background(Color.white)
+                
                 contents()
                     .padding([.bottom], 10)
             }
@@ -86,6 +132,12 @@ extension View {
                 endPoint: .bottomTrailing
             ))
             .presentationCompactAdaptation(.popover)
+        }
+    }
+    
+    func tooltip(isPresented: Binding<Bool>, title: String, toSize: CGFloat, value: Binding<CGFloat>, color: Binding<Color>? = nil, toolWidthArr: [CGFloat]) -> some View {
+        self.tooltip(isPresented: isPresented, title: title, toSize: toSize, value: value, color: color, toolWidthArr: toolWidthArr){
+            EmptyView()
         }
     }
 }
