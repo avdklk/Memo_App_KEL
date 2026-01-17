@@ -106,4 +106,10 @@ extension Note {
             type: type
         )
     }
+    
+    func findElement(id: UUID) -> NoteElement? {
+        let set = elements as? Set<NoteElement> ?? []
+        let element = set.first(where: {$0.id == id})
+        return element
+    }
 }

@@ -27,6 +27,8 @@ struct DrawView: View {
     @State private var isApplyText = false
     @State private var isScollable = true
     @State private var isScrolledToEnd = false
+    @State private var isExplainSelectTool = false
+    @State private var isFirstExplainSelectTool = true
     @State private var height: CGFloat = 0
     private let recognizer = TextRecognizer()
     
@@ -152,7 +154,7 @@ extension DrawView {
                         changedColor = Color(shapeManager.userSettings.strokeColor ?? .blue)
                         showTextView = false
                     }
-                    .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                    .simultaneousGesture(TapGesture().onEnded({ _ in
                         isShowPenWidth.toggle()
                     }))
                     .tooltip(isPresented: $isShowPenWidth, title: "펜의 굵기", toSize: 25, value: $shapeManager.userSettings.strokeWidth, color: $changedColor, toolWidthArr: [3, 5, 10, 15, 25])
@@ -171,7 +173,7 @@ extension DrawView {
                         shapeManager.tool = pentool
                         showTextView = false
                     }
-                    .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                    .simultaneousGesture(TapGesture().onEnded({ _ in
                         isShowEraserWidth.toggle()
                     }))
                     .tooltip(isPresented: $isShowEraserWidth, title: "지우개의 굵기", toSize: 25, value: $shapeManager.userSettings.eraserWidth, toolWidthArr: [3, 5, 10, 15, 25])
@@ -182,7 +184,7 @@ extension DrawView {
                         showTextView.toggle()
                         changedColor = Color(shapeManager.userSettings.fontColor)
                     }
-                    .simultaneousGesture(LongPressGesture(minimumDuration: 0.5).onEnded({ _ in
+                    .simultaneousGesture(TapGesture().onEnded({ _ in
                         isShowTextSize.toggle()
                     }))
                     .tooltip(isPresented: $isShowTextSize, title: "텍스트 크기", toSize: 30, value: $shapeManager.userSettings.fontSize, color: $changedColor, toolWidthArr: [10, 15, 20, 25, 30]) {
@@ -207,6 +209,20 @@ extension DrawView {
                         showTextView = false
                     }
                     
+                    GlassDrawToolButton(systemName: "square.resize", myToolType: .select, nowToolType: toolType) { //select
+                        
+                        showTextView = false
+                        let selectTool = SelectionTool()
+                        toolType = .select
+                        shapeManager.tool = selectTool
+                    }
+                    .simultaneousGesture(TapGesture().onEnded({ _ in
+                        if isFirstExplainSelectTool {
+                            isExplainSelectTool = true
+                            isFirstExplainSelectTool = false
+                        }
+                    })).explainTooltip(isPresented: $isExplainSelectTool, title: "필기 위치를 바꾸는 기능입니다.")
+                    
                     ColorPicker("", selection: $changedColor)
                 }
             }
@@ -221,13 +237,13 @@ extension DrawView {
                 }
             }
         }
-        .simultaneousGesture(SimultaneousGesture(TapGesture(count: 1).onEnded({ _ in
-            print("tab")
+        .simultaneousGesture(SimultaneousGesture(SpatialTapGesture(count: 1).onEnded({ value in
+            shapeManager.tab(point: value.location )
         }), DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged{ value in
             guard !isScollable else {
-                if !shapeManager.isStart {
-                    shapeManager.drawEnd(point: value.location)
-                }
+//                if !shapeManager.isStart {
+//                    shapeManager.drawEnd(point: value.location)
+//                }
                 return
             }
             
@@ -250,5 +266,6 @@ enum ToolType {
     case text
     case undo
     case redo
+    case select
     case none
 }

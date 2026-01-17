@@ -11,6 +11,26 @@ extension View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
+    func explainTooltip(isPresented: Binding<Bool>, title: String) -> some View {
+        self.popover(isPresented: isPresented, arrowEdge: .top) {
+            Text("\(title)")
+                .multilineTextAlignment(.center)
+                .frame(width: 180, alignment: .center)
+                .padding([.top, .trailing, .leading], 15)
+                .font(.system(size: 15))
+                .presentationBackground(LinearGradient(
+                    colors: [
+                        Color.black.opacity(1.0),
+                        Color.blue.opacity(0.7),
+                        Color.purple.opacity(0.8)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ))
+                .presentationCompactAdaptation(.popover)
+        }
+    }
+    
     func widthTooltip(isPresented: Binding<Bool>, title: String, toSize: CGFloat, value: Binding<CGFloat> ) -> some View {
         self.popover(isPresented: isPresented, arrowEdge: .top) {
             Text("\(title)\n\(Int(value.wrappedValue))")

@@ -30,6 +30,16 @@ public class RectShape: ShapeWithTwoPoints,
     public var transform: ShapeTransform = .identity
     public var createdAt: Date?
     
+    public var boundingRect: CGRect {
+        let maxX = max(a.x, b.x)
+        let minX = min(a.x, b.x)
+        let maxY = max(a.y, b.y)
+        let minY = min(a.y, b.y)
+        
+        let minimalRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+        return minimalRect.insetBy(dx: -strokeWidth/2, dy: -strokeWidth/2)
+    }
+    
     public init() {
 
     }
