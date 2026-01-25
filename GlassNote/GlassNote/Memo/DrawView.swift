@@ -27,9 +27,11 @@ struct DrawView: View {
     @State private var isApplyText = false
     @State private var isScollable = true
     @State private var isScrolledToEnd = false
+    @State private var isShowImageTool = false
     @State private var isExplainSelectTool = false
     @State private var isFirstExplainSelectTool = true
     @State private var height: CGFloat = 0
+    
     private let recognizer = TextRecognizer()
     
     init(note: Note, context: NSManagedObjectContext) {
@@ -39,6 +41,7 @@ struct DrawView: View {
     
     var body: some View {
         GeometryReader { geoProxy in
+            let paperWidth = geoProxy.size.width
             let paperHeight = geoProxy.size.height
             
             VStack(alignment: .leading) {
@@ -57,7 +60,16 @@ struct DrawView: View {
                             .frame(height: 1)
                             .onAppear {
                                 withAnimation {
-                                    isScrolledToEnd = true
+                                    if isScollable {
+                                        let lastPageHeight = height - paperHeight
+                                        let lastPageFrame = CGRect(x: 0, y: lastPageHeight, width: paperWidth, height: paperHeight)
+                                        for shape in shapeManager.shapes {
+                                            if let boundShape = shape as? ShapeWithBoundingRect, lastPageFrame.contains(boundShape.boundingRect) {
+                                                isScrolledToEnd = true
+                                                break
+                                            }
+                                        }
+                                    }
                                 }
                             }
                     }
@@ -67,6 +79,7 @@ struct DrawView: View {
             .onChange(of: isScrolledToEnd, { oldValue, newValue in
                 if newValue {
                     height += paperHeight
+                    shapeManager.canvasSize = CGSize(width: paperWidth, height: height)
                     isScrolledToEnd = false
                 }
             })
@@ -105,14 +118,20 @@ struct DrawView: View {
                 }
             }
             .onChange(of: selectedImage, { oldValue, newValue in
-                shapeManager.tool = nil
-                toolType = .text
-                showTextView = true
-                changedColor = Color(shapeManager.userSettings.fontColor)
-                
-                if let newValue = newValue {
-                    recognizer.recognizeText(from: newValue) { text in
-                        self.text = text
+                if toolType == .text {
+                    shapeManager.tool = nil
+                    toolType = .text
+                    showTextView = true
+                    changedColor = Color(shapeManager.userSettings.fontColor)
+                    
+                    if let newValue = newValue {
+                        recognizer.recognizeText(from: newValue) { text in
+                            self.text = text
+                        }
+                    }
+                } else if toolType == .image {
+                    if let newValue = newValue {
+                        shapeManager.tool = ImageTool(image: newValue)
                     }
                 }
             })
@@ -120,6 +139,7 @@ struct DrawView: View {
                 if !didLoad {
                     didLoad = true
                     height = paperHeight
+                    shapeManager.canvasSize = CGSize(width: paperWidth, height: height)
                     shapeManager.getShape()
                     toolType = .pen
                     shapeManager.tool = PenTool()
@@ -174,7 +194,7 @@ extension DrawView {
                         showTextView = false
                     }
                     .simultaneousGesture(TapGesture().onEnded({ _ in
-                        isShowEraserWidth.toggle()
+                        //                        isShowEraserWidth.toggle()
                     }))
                     .tooltip(isPresented: $isShowEraserWidth, title: "지우개의 굵기", toSize: 25, value: $shapeManager.userSettings.eraserWidth, toolWidthArr: [3, 5, 10, 15, 25])
                     
@@ -209,7 +229,7 @@ extension DrawView {
                         showTextView = false
                     }
                     
-                    GlassDrawToolButton(systemName: "square.resize", myToolType: .select, nowToolType: toolType) { //select
+                    GlassDrawToolButton(systemName: "arrow.up.left.and.down.right.and.arrow.up.right.and.down.left", myToolType: .select, nowToolType: toolType) { //select
                         
                         showTextView = false
                         let selectTool = SelectionTool()
@@ -223,6 +243,23 @@ extension DrawView {
                         }
                     })).explainTooltip(isPresented: $isExplainSelectTool, title: "필기 위치를 바꾸는 기능입니다.")
                     
+                    GlassDrawToolButton(systemName: "photo.artframe", myToolType: .image, nowToolType: toolType) { //image
+                        toolType = .image
+                        shapeManager.tool = TransformDrawingTool()
+                        isShowImageTool = true
+                        showTextView = false
+                    }
+                   .tooltip(isPresented: $isShowImageTool, edge: .top, title: "이미지를 추가해보세요.") {
+                        HStack(alignment: .center, spacing: 10) {
+                            GlassDrawToolButton(systemName: "camera", myToolType: nil, nowToolType: nil, isSelected: false) {
+                                showCamera = true
+                            }
+                            
+                            GlassDrawToolButton(systemName: "photo", myToolType: nil, nowToolType: nil, isSelected: false) {
+                                isPickerPresented = true
+                            }
+                        }
+                    }
                     ColorPicker("", selection: $changedColor)
                 }
             }
@@ -237,25 +274,33 @@ extension DrawView {
                 }
             }
         }
-        .simultaneousGesture(SimultaneousGesture(SpatialTapGesture(count: 1).onEnded({ value in
-            shapeManager.tab(point: value.location )
-        }), DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged{ value in
-            guard !isScollable else {
-//                if !shapeManager.isStart {
-//                    shapeManager.drawEnd(point: value.location)
-//                }
-                return
+        .gesture(
+            SpatialTapGesture(count: 1).onEnded{ value in
+                shapeManager.tab(point: value.location )
             }
-            
-            if shapeManager.isStart {
-                shapeManager.drawStart(point: value.location)
-            } else {
-                shapeManager.drawContinue(point: value.location)
-            }
-        }.onEnded{ value in
-            guard !isScollable else {return}
-            shapeManager.drawEnd(point: value.location)
-        })
+                .simultaneously(with:
+                                    DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged{ value in
+                                        guard !isScollable else {return}
+                                        
+                                        if shapeManager.isStart {
+                                            shapeManager.drawStart(point: value.location)
+                                        } else {
+                                            shapeManager.drawContinue(point: value.location)
+                                        }
+                                    }.onEnded{ value in
+                                        guard !isScollable else {return}
+                                        shapeManager.drawEnd(point: value.location)
+                                    }
+                               )
+                .simultaneously(with:
+                                    MagnificationGesture()
+                    .onChanged { value in
+                        shapeManager.drawMagnification(scale: value)
+                    }
+                    .onEnded { value in
+                        shapeManager.drawEnd(point: .zero)
+                    }
+                               ), including: isScollable ? .none: .all
         )
     }
 }
@@ -267,5 +312,6 @@ enum ToolType {
     case undo
     case redo
     case select
+    case image
     case none
 }

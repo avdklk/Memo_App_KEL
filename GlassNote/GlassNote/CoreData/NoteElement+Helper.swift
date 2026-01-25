@@ -13,6 +13,7 @@ enum NoteElementType: String {
     case text = "Text"
     case rect = "Rectangle"
     case pen = "Pen"
+    case image = "Image"
 }
 
 //MARK: - NoteElement 헬퍼 메서드
@@ -37,6 +38,7 @@ extension NoteElement {
                 case .pen: self.type = NoteElementType.text.rawValue
                 case .rect: self.type = NoteElementType.rect.rawValue
                 case .text: self.type = NoteElementType.text.rawValue
+                case .image: self.type = NoteElementType.image.rawValue
                 }
             } catch {
                 print("디코딩 실패: \(error)")
@@ -89,6 +91,9 @@ extension Note {
             case .text(let textData):
                 let textShape = TextShape(textData: textData)
                 shapes.append(textShape)
+            case .image(let imageData):
+                let imageShape = ImageShape(imageData: imageData)
+                shapes.append(imageShape)
             case .none:
                 print("Note shapes type 없음")
             }

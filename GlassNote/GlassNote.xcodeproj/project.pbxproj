@@ -7,17 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		070D9A7B2F1B4E070035A347 /* Note+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070D9A772F1B4E070035A347 /* Note+CoreDataClass.swift */; };
-		070D9A7C2F1B4E070035A347 /* Note+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070D9A782F1B4E070035A347 /* Note+CoreDataProperties.swift */; };
-		070D9A7D2F1B4E070035A347 /* NoteElement+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070D9A792F1B4E070035A347 /* NoteElement+CoreDataClass.swift */; };
-		070D9A7E2F1B4E070035A347 /* NoteElement+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070D9A7A2F1B4E070035A347 /* NoteElement+CoreDataProperties.swift */; };
+		078827C42EF81DF000E96559 /* NoteElement+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */; };
+		078827C52EF81DF000E96559 /* NoteElement+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */; };
+		078827C62EF81DF000E96559 /* Note+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */; };
+		078827C72EF81DF000E96559 /* Note+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		070D9A772F1B4E070035A347 /* Note+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataClass.swift"; sourceTree = "<group>"; };
-		070D9A782F1B4E070035A347 /* Note+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataProperties.swift"; sourceTree = "<group>"; };
-		070D9A792F1B4E070035A347 /* NoteElement+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteElement+CoreDataClass.swift"; sourceTree = "<group>"; };
-		070D9A7A2F1B4E070035A347 /* NoteElement+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteElement+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataClass.swift"; sourceTree = "<group>"; };
+		078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteElement+CoreDataClass.swift"; sourceTree = "<group>"; };
+		078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NoteElement+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		374ABC5E2ECB532C00674E3D /* GlassNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GlassNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -43,10 +43,10 @@
 		374ABC552ECB532C00674E3D = {
 			isa = PBXGroup;
 			children = (
-				070D9A772F1B4E070035A347 /* Note+CoreDataClass.swift */,
-				070D9A782F1B4E070035A347 /* Note+CoreDataProperties.swift */,
-				070D9A792F1B4E070035A347 /* NoteElement+CoreDataClass.swift */,
-				070D9A7A2F1B4E070035A347 /* NoteElement+CoreDataProperties.swift */,
+				078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */,
+				078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */,
+				078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */,
+				078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */,
 				374ABC602ECB532C00674E3D /* GlassNote */,
 				374ABC5F2ECB532C00674E3D /* Products */,
 			);
@@ -134,10 +134,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				070D9A7B2F1B4E070035A347 /* Note+CoreDataClass.swift in Sources */,
-				070D9A7C2F1B4E070035A347 /* Note+CoreDataProperties.swift in Sources */,
-				070D9A7D2F1B4E070035A347 /* NoteElement+CoreDataClass.swift in Sources */,
-				070D9A7E2F1B4E070035A347 /* NoteElement+CoreDataProperties.swift in Sources */,
+				078827C42EF81DF000E96559 /* NoteElement+CoreDataProperties.swift in Sources */,
+				078827C52EF81DF000E96559 /* NoteElement+CoreDataClass.swift in Sources */,
+				078827C62EF81DF000E96559 /* Note+CoreDataProperties.swift in Sources */,
+				078827C72EF81DF000E96559 /* Note+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,11 +275,12 @@
 				DEVELOPMENT_TEAM = NYZL84F538;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "사진 촬영을 위해 카메라 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -287,9 +288,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = team.GlassLab.GlassNote.GlassNote;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -303,11 +308,12 @@
 				DEVELOPMENT_TEAM = NYZL84F538;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "사진 촬영을 위해 카메라 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -315,9 +321,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = team.GlassLab.GlassNote.GlassNote;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};

@@ -8,7 +8,7 @@ import UIKit
 
 public class RectShape: ShapeWithTwoPoints,
                         ShapeWithStandardState,
-                        ShapeSelectable {
+                        ShapeSelectable, ShapeWithBoundingRect {
     
     private enum CodingKeys: String, CodingKey {
       case id, a, b, fillColor,

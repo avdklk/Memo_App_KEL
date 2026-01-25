@@ -160,4 +160,30 @@ extension View {
             EmptyView()
         }
     }
+    
+    func tooltip<Content: View>(isPresented: Binding<Bool>, edge: Edge, title: String, contents: @escaping() -> Content) -> some View {
+        self.popover(isPresented: isPresented, arrowEdge: edge) {
+            VStack {
+                Text("\(title))")
+                    .multilineTextAlignment(.center)
+                    .frame(width: 180, height: 40, alignment: .center)
+                    .padding([.top], 10)
+                    .font(.system(size: 15, weight: .bold))
+                    .foregroundStyle(.white)
+                
+                contents()
+                    .padding([.bottom], 10)
+            }
+            .presentationBackground(LinearGradient(
+                colors: [
+                    Color.black.opacity(1.0),
+                    Color.blue.opacity(0.7),
+                    Color.purple.opacity(0.8)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ))
+            .presentationCompactAdaptation(.popover)
+        }
+    }
 }

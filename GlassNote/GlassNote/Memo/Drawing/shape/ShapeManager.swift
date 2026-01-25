@@ -15,6 +15,7 @@ public class ShapeManager: ObservableObject {
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false
     
+    var canvasSize: CGSize = .zero
     private var context: NSManagedObjectContext
     var note: Note
     
@@ -70,7 +71,6 @@ public class ShapeManager: ObservableObject {
         
         do {
             try context.save()
-            print("✅ 업데이트(수정) 완료: \(uuid)")
         } catch {
             print("업데이트 실패: \(error)")
         }
@@ -139,11 +139,21 @@ public class ShapeManager: ObservableObject {
         tool?.handleDragEnd(shapeManager: self, point: point)
         if tool is SelectionTool {
             updateNoteElementData()
+        } else if let lastShape = shapes.last as? TransformSelectable,
+                  let uuid = UUID(uuidString: lastShape.id),
+                  let element = note.findElement(id: uuid) {
+            updateNoteElementData()
         } else {
             saveNewNoteElement()
         }
         canUndo = !shapes.isEmpty
         undoRedoManager.resetRedo()
+    }
+    
+    public func drawMagnification(scale: CGFloat) {
+        if let tool = tool as? TransformDrawingTool {
+            tool.handleMagnification(shapeManager: self, scale: scale)
+        }
     }
     
     public func getShape() {
