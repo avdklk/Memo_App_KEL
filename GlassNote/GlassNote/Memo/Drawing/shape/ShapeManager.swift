@@ -15,6 +15,7 @@ public class ShapeManager: ObservableObject {
     @Published var canUndo: Bool = false
     @Published var canRedo: Bool = false
     
+    var canvasSize: CGSize = .zero
     private var context: NSManagedObjectContext
     var note: Note
     
@@ -46,9 +47,10 @@ public class ShapeManager: ObservableObject {
         shapes.append(shape)
     }
     
-    public func updateShape(shape: Shape) -> Shape? {
-        let filteredShape = shapes.filter({ $0 === shape })
-        return filteredShape.first
+    public func updateShape(shape: Shape) {
+        guard let filterShape = shapes.first(where:{ $0.id == shape.id }) else {return}
+        let _ = shapes.removeAll(where:{ $0.id == filterShape.id})
+        shapes.append(shape)
     }
     
     public func removeShape(shape: Shape) {
@@ -59,18 +61,35 @@ public class ShapeManager: ObservableObject {
         return shapes.popLast()
     }
     
+    func updateNoteElementData() {
+        guard let lastShape = shapes.last,
+              let uuid = UUID(uuidString: lastShape.id),
+                let element = note.findElement(id: uuid) else { return }
+    
+        element.createdAt = Date()
+        element.drawingShape = lastShape.getData().toData()
+        
+        do {
+            try context.save()
+        } catch {
+            print("업데이트 실패: \(error)")
+        }
+    }
+    
     public func saveNewNoteElement() {
-        guard let lastShape = shapes.last, let id = UUID(uuidString: lastShape.id), let type = NoteElementType(rawValue: lastShape.type),  let drawingShape = lastShape.getData().toData() else {return}
+        guard let lastShape = shapes.last, !(tool is SelectionTool), let id = UUID(uuidString: lastShape.id), let type = NoteElementType(rawValue: lastShape.type),  let drawingShape = lastShape.getData().toData() else {return}
         
         _ = note.addDrawingElement(in: context, id: id, data: drawingShape, type: type)
         try? context.save()
     }
+    
     
     public func deleteNewNoteElement() {
         let sortedElements = note.sortedElements
         guard !sortedElements.isEmpty, let lastNoteElement = sortedElements.last else {return}
         
         note.removeFromElements(lastNoteElement)
+        context.delete(lastNoteElement)
         try? context.save()
     }
     
@@ -102,6 +121,10 @@ public class ShapeManager: ObservableObject {
         saveNewNoteElement()
     }
     
+    public func tab(point: CGPoint) {
+        tool?.handleTap(shapeManager: self, point: point)
+    }
+    
     public func drawStart(point: CGPoint) {
         isStart = false
         tool?.handleDragStart(shapeManager: self, point: point)
@@ -114,13 +137,28 @@ public class ShapeManager: ObservableObject {
     public func drawEnd(point: CGPoint) {
         isStart = true
         tool?.handleDragEnd(shapeManager: self, point: point)
-        saveNewNoteElement()
+        if tool is SelectionTool {
+            updateNoteElementData()
+        } else if let lastShape = shapes.last as? TransformSelectable,
+                  let uuid = UUID(uuidString: lastShape.id),
+                  let element = note.findElement(id: uuid) {
+            updateNoteElementData()
+        } else {
+            saveNewNoteElement()
+        }
         canUndo = !shapes.isEmpty
         undoRedoManager.resetRedo()
     }
     
+    public func drawMagnification(scale: CGFloat) {
+        if let tool = tool as? TransformDrawingTool {
+            tool.handleMagnification(shapeManager: self, scale: scale)
+        }
+    }
+    
     public func getShape() {
         let savedShapes = note.shapes
+        
         shapes = savedShapes
         canUndo = !shapes.isEmpty
     }

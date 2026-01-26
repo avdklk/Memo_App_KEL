@@ -16,7 +16,7 @@ public protocol Shape: AnyObject, Codable {
     var createdAt: Date? { get set }
     /// 이 도형의 문자열 타입. 직렬화(serialization) 및 디버깅 용도로 사용된다.
     var type: String { get }
-    
+
     /// 주어진 Core Graphics 컨텍스트에 이 도형을 그린다.
     /// 위치 및 스케일에 대한 변환(transform)은 이미 적용된 상태다.
     func render(in context: CGContext)
@@ -84,6 +84,9 @@ extension ShapeSelectable {
   }
 }
 
+public protocol TransformSelectable : ShapeSelectable {
+    
+}
 /**
  Enhancement to `Shape` adding properties to match all `UserSettings`
  properties. There is a convenience method `apply(userSettings:)` which updates

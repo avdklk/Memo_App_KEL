@@ -7,7 +7,7 @@
 import Foundation
 import UIKit
 
-public class TextShape: Shape, ShapeSelectable {
+public class TextShape: Shape, ShapeSelectable, ShapeWithBoundingRect {
     private enum CodingKeys: String, CodingKey {
         case id, transform, text, fontName, fontSize, textColor, type,
              explicitWidth, boundingRect

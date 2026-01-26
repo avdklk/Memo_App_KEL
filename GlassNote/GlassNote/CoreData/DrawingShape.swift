@@ -5,6 +5,7 @@
 //  Created by 하고 싶은 걸 하고 살자 on 12/21/25.
 //
 import Foundation
+import UIKit
 
 public struct PenData: Codable {
     var id: String
@@ -39,10 +40,17 @@ public struct TextData: Codable {
     var boundingRect: CGRect
 }
 
+public struct ImageData: Codable {
+    var id: String
+    var transform: ShapeTransform
+    var image: Data?
+}
+
 public enum DrawingShape: Codable {
     case pen(PenData)
     case rect(RectData)
     case text(TextData)
+    case image(ImageData)
 }
 
 extension DrawingShape {

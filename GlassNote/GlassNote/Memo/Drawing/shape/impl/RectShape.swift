@@ -8,7 +8,7 @@ import UIKit
 
 public class RectShape: ShapeWithTwoPoints,
                         ShapeWithStandardState,
-                        ShapeSelectable {
+                        ShapeSelectable, ShapeWithBoundingRect {
     
     private enum CodingKeys: String, CodingKey {
       case id, a, b, fillColor,
@@ -29,6 +29,16 @@ public class RectShape: ShapeWithTwoPoints,
     public var dashLengths: [CGFloat]?
     public var transform: ShapeTransform = .identity
     public var createdAt: Date?
+    
+    public var boundingRect: CGRect {
+        let maxX = max(a.x, b.x)
+        let minX = min(a.x, b.x)
+        let maxY = max(a.y, b.y)
+        let minY = min(a.y, b.y)
+        
+        let minimalRect = CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+        return minimalRect.insetBy(dx: -strokeWidth/2, dy: -strokeWidth/2)
+    }
     
     public init() {
 
