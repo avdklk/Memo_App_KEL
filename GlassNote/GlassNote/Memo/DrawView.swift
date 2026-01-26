@@ -31,6 +31,7 @@ struct DrawView: View {
     @State private var isExplainSelectTool = false
     @State private var isFirstExplainSelectTool = true
     @State private var height: CGFloat = 0
+    @State private var handleResizeTool: HandleResizeTool?
     
     private let recognizer = TextRecognizer()
     
@@ -260,6 +261,14 @@ extension DrawView {
                             }
                         }
                     }
+                    
+                    GlassDrawToolButton(systemName: "crop", myToolType: .imageResize, nowToolType: toolType) { //imageResize
+                        toolType = .imageResize
+                        let tool = HandleResizeTool()
+                        handleResizeTool = tool
+                        shapeManager.tool = tool
+                        showTextView = false
+                    }
                     ColorPicker("", selection: $changedColor)
                 }
             }
@@ -267,11 +276,20 @@ extension DrawView {
     }
     
     private var drawingView: some View {
-        Canvas { context, size in
-            context.withCGContext { cgContext in
-                for shape in shapeManager.shapes {
-                    shape.render(in: cgContext)
+        ZStack {
+            Canvas { context, size in
+                context.withCGContext { cgContext in
+                    for shape in shapeManager.shapes {
+                        shape.render(in: cgContext)
+                    }
                 }
+            }
+            
+            // 핸들 리사이즈 모드일 때 선택된 이미지에 핸들 표시
+            if toolType == .imageResize,
+               let tool = handleResizeTool,
+               let selectedShape = tool.selectedShape {
+                ResizeHandleOverlay(shape: selectedShape, activeHandle: tool.activeHandle)
             }
         }
         .gesture(
@@ -313,5 +331,6 @@ enum ToolType {
     case redo
     case select
     case image
+    case imageResize  // 핸들 리사이즈 도구
     case none
 }

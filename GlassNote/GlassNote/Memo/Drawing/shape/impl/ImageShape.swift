@@ -7,17 +7,24 @@
 import Foundation
 import UIKit
 
-public class ImageShape: Shape, TransformSelectable {
+public class ImageShape: Shape, TransformSelectable, ResizableShape {
     
     public var id: String = UUID().uuidString
     public var createdAt: Date?
     public var type: String = "Image"
     public var transform: ShapeTransform = .identity
     public var image: UIImage?
+    public var customSize: CGSize?
     
     public var boundingRect: CGRect {
-        let imageWidth:CGFloat = 100
-        guard let image = image else {return .zero}
+        // customSize가 있으면 그 크기 사용
+        if let customSize = customSize {
+            return CGRect(origin: .zero, size: customSize)
+        }
+        
+        // 기본값: 너비 100, 비율 유지
+        let imageWidth: CGFloat = 100
+        guard let image = image else { return .zero }
         let imageRatio = image.size.height / image.size.width
         let imageHeight = imageWidth * imageRatio
         

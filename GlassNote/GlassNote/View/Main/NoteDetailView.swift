@@ -17,6 +17,7 @@ struct NoteDetailView: View {
     @State private var isEditingTitle: Bool = false
     @FocusState private var isTitleFocused: Bool
     @State private var keyboardHeight: CGFloat = 0
+    @State private var showSaveToast: Bool = false
     
     var body: some View {
         ZStack {
@@ -29,12 +30,48 @@ struct NoteDetailView: View {
                 //MARK: - Content Area (스케치 / 메모 등 도형 같은거 로직 넣는곳)
                 contentArea
             }
+            
             .offset(y: -keyboardHeight)
             .ignoresSafeArea(.keyboard, edges: .bottom)
             .animation(.easeOut(duration: 0.16), value: keyboardHeight)
             .onReceive(Publishers.keyboardHeight) { height in
                 if !isTitleFocused {
                     self.keyboardHeight = (height / 2)
+                }
+            }
+            
+            // 저장 완료 Toast
+            if showSaveToast {
+                VStack {
+                    Spacer()
+                    HStack(spacing: 8) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.green)
+                        Text("Saved")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(.white)
+                    }
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 14)
+                    .background(
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.ultraThinMaterial)
+                            RoundedRectangle(cornerRadius: 16)
+                                .stroke(
+                                    LinearGradient(
+                                        colors: [.white.opacity(0.5), .white.opacity(0.1)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    lineWidth: 1
+                                )
+                        }
+                    )
+                    .shadow(color: .green.opacity(0.3), radius: 12, x: 0, y: 4)
+                    .transition(.scale.combined(with: .opacity))
+                    Spacer().frame(height: 60)
                 }
             }
         }
@@ -86,7 +123,7 @@ extension NoteDetailView {
             
             //저장 버튼
             GlassToolButton(systemName: "square.and.arrow.down", title: "Save", isSelected: true) {
-                saveNote()
+                saveNote(showToast: true)
             }
         }
         .padding(.horizontal, 10)
@@ -119,12 +156,22 @@ extension NoteDetailView {
     }
     
     //노트 코어 데이터 저장
-    private func saveNote() {
+    private func saveNote(showToast: Bool = false) {
         note.title = editingTitle
         note.updatedAt = Date()
         
         do {
             try context.save()
+            if showToast {
+                withAnimation {
+                    showSaveToast = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                    withAnimation {
+                        showSaveToast = false
+                    }
+                }
+            }
         } catch {
             print("저장 실패: \(error)")
         }
