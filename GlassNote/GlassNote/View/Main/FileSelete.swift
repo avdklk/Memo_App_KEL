@@ -17,8 +17,10 @@ struct FileSelete: View {
     private var notes: FetchedResults<Note>
     
     @Environment(\.managedObjectContext) private var context
+    @EnvironmentObject var transactionManager: TransactionManager
     @State private var canDelete: Bool = false
     @State private var selectedNote: Note? = nil
+    @State private var showTransactionView: Bool = false
     
     var body: some View {
         ZStack {
@@ -58,6 +60,9 @@ struct FileSelete: View {
         .fullScreenCover(item: $selectedNote) { note in
             NoteDetailView(note: note)
         }
+        .fullScreenCover(isPresented: $showTransactionView, content: {
+            TransactionView()
+        })
     }
 }
 
@@ -78,15 +83,20 @@ extension FileSelete {
                 }
             } else {
                 Menu {
-                    GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true) {
-                        let newNote = Note(context: context)
-                        newNote.id = UUID()
-                        newNote.title = "New Note"
-                        newNote.previewText = ""
-                        newNote.updatedAt = Date()
-                        try? context.save()
+                    if !transactionManager.hasUnlockedPro && notes.count > 0 {
+                        GlassToolButton(systemName: "crown", title: "subscribe", isSelected: true) {
+                            showTransactionView = true
+                        }
+                    } else {
+                        GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true) {
+                            let newNote = Note(context: context)
+                            newNote.id = UUID()
+                            newNote.title = "New Note"
+                            newNote.previewText = ""
+                            newNote.updatedAt = Date()
+                            try? context.save()
+                        }
                     }
-                    
                     GlassToolButton(systemName: "xmark", title: "Delete", isSelected: true) {
                         canDelete = true
                     }
