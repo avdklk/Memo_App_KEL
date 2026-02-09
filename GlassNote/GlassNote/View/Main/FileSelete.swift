@@ -61,7 +61,7 @@ struct FileSelete: View {
             NoteDetailView(note: note)
         }
         .fullScreenCover(isPresented: $showTransactionView, content: {
-            TransactionView()
+            LoginView()
         })
     }
 }
