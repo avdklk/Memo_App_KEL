@@ -250,7 +250,7 @@ extension DrawView {
                         isShowImageTool = true
                         showTextView = false
                     }
-                   .tooltip(isPresented: $isShowImageTool, edge: .top, title: "이미지를 추가해보세요.") {
+                    .tooltip(isPresented: $isShowImageTool, edge: .top, title: "이미지를 추가해보세요.") {
                         HStack(alignment: .center, spacing: 10) {
                             GlassDrawToolButton(systemName: "camera", myToolType: nil, nowToolType: nil, isSelected: false) {
                                 showCamera = true

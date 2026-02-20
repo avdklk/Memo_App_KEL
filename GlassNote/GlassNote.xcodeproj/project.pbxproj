@@ -22,6 +22,7 @@
 		070431342F30B24F00C6BEA5 /* FirebasePerformance in Frameworks */ = {isa = PBXBuildFile; productRef = 070431332F30B24F00C6BEA5 /* FirebasePerformance */; };
 		070431362F30B24F00C6BEA5 /* FirebaseRemoteConfig in Frameworks */ = {isa = PBXBuildFile; productRef = 070431352F30B24F00C6BEA5 /* FirebaseRemoteConfig */; };
 		070431382F30B24F00C6BEA5 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 070431372F30B24F00C6BEA5 /* FirebaseStorage */; };
+		0711FAA12F3CA04000D6EE2F /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0711FAA02F3CA04000D6EE2F /* StoreKit.framework */; };
 		07195BBA2F2F2AA60085ADBB /* TransactionConfigurationFile.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 07195BB92F2F2AA60085ADBB /* TransactionConfigurationFile.storekit */; };
 		078827C42EF81DF000E96559 /* NoteElement+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */; };
 		078827C52EF81DF000E96559 /* NoteElement+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */; };
@@ -31,6 +32,7 @@
 
 /* Begin PBXFileReference section */
 		0704311A2F30B03300C6BEA5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		0711FAA02F3CA04000D6EE2F /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		07195BB92F2F2AA60085ADBB /* TransactionConfigurationFile.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = TransactionConfigurationFile.storekit; sourceTree = "<group>"; };
 		078827C02EF81DF000E96559 /* Note+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataClass.swift"; sourceTree = "<group>"; };
 		078827C12EF81DF000E96559 /* Note+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Note+CoreDataProperties.swift"; sourceTree = "<group>"; };
@@ -64,6 +66,7 @@
 				0704311E2F30B24F00C6BEA5 /* FirebaseAI in Frameworks */,
 				070431362F30B24F00C6BEA5 /* FirebaseRemoteConfig in Frameworks */,
 				070431382F30B24F00C6BEA5 /* FirebaseStorage in Frameworks */,
+				0711FAA12F3CA04000D6EE2F /* StoreKit.framework in Frameworks */,
 				070431322F30B24F00C6BEA5 /* FirebaseMessaging in Frameworks */,
 				070431302F30B24F00C6BEA5 /* FirebaseInAppMessaging-Beta in Frameworks */,
 			);
@@ -72,6 +75,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0711FA9F2F3CA04000D6EE2F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0711FAA02F3CA04000D6EE2F /* StoreKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		374ABC552ECB532C00674E3D = {
 			isa = PBXGroup;
 			children = (
@@ -82,6 +93,7 @@
 				078827C22EF81DF000E96559 /* NoteElement+CoreDataClass.swift */,
 				078827C32EF81DF000E96559 /* NoteElement+CoreDataProperties.swift */,
 				374ABC602ECB532C00674E3D /* GlassNote */,
+				0711FA9F2F3CA04000D6EE2F /* Frameworks */,
 				374ABC5F2ECB532C00674E3D /* Products */,
 			);
 			sourceTree = "<group>";

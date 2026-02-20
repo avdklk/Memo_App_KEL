@@ -12,15 +12,15 @@ import SwiftUI // ObservableObject를 위해 필요
 @MainActor
 class TransactionManager: ObservableObject {
     
-    static let shared = TransactionManager()
-    
-    // 제품 ID 목록 (실제 앱에서는 Configuration 파일 등에서 관리 권장)
-    private let productIds = ["Month_Sub_Kelee", "Year_Sub_Kelee"]
+    static let instance = TransactionManager()
+    static let monthSubId = "Month_Sub_Kelee"
+    static let yearSubId = "Year_Sub_Kelee"
     
     @Published private(set) var productDict: [String : Product] = [:]
     @Published private(set) var purchasedProductIDs = Set<String>()
     @Published var isLoading: Bool = false
-    
+   
+    private let productIds = [monthSubId, yearSubId]
     private var productsLoaded = false
     private var updatesTask: Task<Void, Never>? = nil
     
@@ -89,6 +89,20 @@ class TransactionManager: ObservableObject {
         }
     }
     
+    func restorePurchases() async {
+        do {
+            // App Store와 동기화하여 최신 트랜잭션 정보를 가져옵니다.
+            // 사용자에게 Apple ID 로그인을 요청할 수 있습니다.
+            try await AppStore.sync()
+            
+            await updateCurrentEntitlements()
+            
+            print("구매 복구 완료")
+        } catch {
+            print("구매 복구 실패: \(error)")
+        }
+    }
+    
     // MARK: - 구독 버튼 탭 (뷰에서 호출하는 함수)
     func subscribeButtonTapped(selectedButton: String) {
         var selectedProductId = ""
@@ -119,6 +133,10 @@ class TransactionManager: ObservableObject {
         // 1. 거래가 취소(환불)된 경우
         if transaction.revocationDate != nil {
             self.purchasedProductIDs.remove(transaction.productID)
+            if let userID = UserDefaults.standard.string(forKey: KeyConstants.UserDefaults.appleIdentifier.rawValue) {
+                StorageManager.instance.deleteDocument(userID: userID) //Q test
+                
+            }
             return
         }
         
@@ -136,6 +154,17 @@ class TransactionManager: ObservableObject {
         
         // 4. 유효한 구매 내역인 경우 -> Set에 추가
         self.purchasedProductIDs.insert(transaction.productID)
+        
+        if let expirationDate = transaction.expirationDate,
+           let dateStr = StorageUtil.instance.dateToString(date: expirationDate),
+           StorageUtil.instance.verifySubscribedDate(subscribeDate: dateStr),
+           let userID = UserDefaults.standard.string(forKey: KeyConstants.UserDefaults.appleIdentifier.rawValue) {
+            
+            let isMonth = transaction.productID == TransactionManager.monthSubId ? true : false
+            let subscribeData = SubscribeData(Date: dateStr, Key: "" , Month: isMonth, Year: !isMonth)
+            StorageManager.instance.addSubscriberData(userID: userID, subscriber: subscribeData)
+            AppState.instance.subState = true
+        }
     }
     
     // MARK: - 앱 시작 시 기존 권한(Entitlements) 확인
@@ -168,23 +197,11 @@ class TransactionManager: ObservableObject {
     }
     
     func getPrice(selectedButton: String) -> String? {
-        var selectedProductId = ""
+        let selectedProductId = (selectedButton == "yearly") ? "Year_Sub_Kelee" : "Month_Sub_Kelee"
         
-        switch selectedButton {
-        case "yearly":
-            selectedProductId = "Year_Sub_Kelee"
-        case "monthly":
-            selectedProductId = "Month_Sub_Kelee"
-        default:
-            print("Invalid selection")
-            return nil
-        }
-        
-        guard let wishProduct = productDict[selectedProductId] else {return nil}
-        
-        let code = wishProduct.priceFormatStyle.currencyCode
-        
-        return GlobalPriceFormatter.format(price: NSDecimalNumber(decimal:wishProduct.price).doubleValue, currencyCode: code)
+        guard let wishProduct = productDict[selectedProductId] else { return nil }
+
+        return wishProduct.displayPrice
     }
     
     func calculateYearlySavings() -> String? {

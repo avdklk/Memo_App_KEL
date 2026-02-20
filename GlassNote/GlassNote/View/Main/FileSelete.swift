@@ -18,23 +18,22 @@ struct FileSelete: View {
     
     @Environment(\.managedObjectContext) private var context
     @EnvironmentObject var transactionManager: TransactionManager
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var networkMonitor: NetworkMonitor
+    
     @State private var canDelete: Bool = false
     @State private var selectedNote: Note? = nil
-    @State private var showTransactionView: Bool = false
+    @State private var showNetworkTooltip: Bool = false
     
     var body: some View {
         ZStack {
-            
             GlassBackground()
-            
             VStack(spacing: 20) {
                 header
-                
                 ScrollView(showsIndicators: false) {
                     VStack(spacing: 16) {
                         ForEach(notes, id: \.objectID) { note in
                             Button(action: {
-                                // 버튼 액션 안에서 로직 처리
                                 if canDelete {
                                     context.delete(note)
                                     try? context.save()
@@ -43,7 +42,7 @@ struct FileSelete: View {
                                 }
                             }) {
                                 LiquidGlassNoteCard(note: note, canDelete: canDelete)
-                                    .contentShape(Rectangle()) // 터치 영역 꽉 채우기 (필수)
+                                    .contentShape(Rectangle())
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
@@ -60,9 +59,12 @@ struct FileSelete: View {
         .fullScreenCover(item: $selectedNote) { note in
             NoteDetailView(note: note)
         }
-        .fullScreenCover(isPresented: $showTransactionView, content: {
-            LoginView()
-        })
+        .onAppear {
+            showNetworkTooltip = networkMonitor.isConnected
+        }
+        .onChange(of: networkMonitor.isConnected) { oldValue, newValue in
+            showNetworkTooltip = newValue
+        }
     }
 }
 
@@ -71,7 +73,7 @@ extension FileSelete {
     //MARK: - header
     private var header: some View {
         HStack {
-            Text("Your Notes")
+            Text("Notes")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(.white)
             
@@ -83,10 +85,13 @@ extension FileSelete {
                 }
             } else {
                 Menu {
-                    if !transactionManager.hasUnlockedPro && notes.count > 0 {
-                        GlassToolButton(systemName: "crown", title: "subscribe", isSelected: true) {
-                            showTransactionView = true
+                    if !transactionManager.hasUnlockedPro && notes.count > 0 && !appState.subState {
+                        GlassToolButton(systemName: "crown", title: "subscribe", isSelected: true, isHighlight: showNetworkTooltip) {
+                            if networkMonitor.isConnected {
+                                appState.currentView = .login
+                            }
                         }
+                        .explainTooltip(isPresented: $showNetworkTooltip, title: "구독은 네트워크 연결 후 가능합니다.\n네트워크 상태를 확인해주세요.", edge: .bottom)
                     } else {
                         GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true) {
                             let newNote = Note(context: context)
@@ -100,6 +105,7 @@ extension FileSelete {
                     GlassToolButton(systemName: "xmark", title: "Delete", isSelected: true) {
                         canDelete = true
                     }
+                
                 } label: {
                     GlassToolButton(systemName: "ellipsis.circle", title: "Menu", isSelected: true) {}
                 }

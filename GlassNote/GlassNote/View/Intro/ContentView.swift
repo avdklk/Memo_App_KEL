@@ -9,8 +9,7 @@ import SwiftUI
 
 
 struct ContentView: View {
-    @State private var goToFiles = false
-    @State private var isStartMemo = false
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack {
@@ -47,10 +46,7 @@ struct ContentView: View {
                     title: "Start Note",
                     isSelected: true
                 ) {
-                    goToFiles = true
-                }
-                .fullScreenCover(isPresented: $goToFiles) {
-                    FileSelete()
+                    appState.currentView = .fileSelect
                 }
             }
         }

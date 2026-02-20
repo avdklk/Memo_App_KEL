@@ -45,7 +45,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "9.99",
+          "displayPrice" : "99.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "3A26EAEC",
@@ -59,7 +59,7 @@
           ],
           "productID" : "Year_Sub_Kelee",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "Year_Sub_Kelee",
+          "referenceName" : "연간 구독",
           "subscriptionGroupID" : "BE8C426B",
           "type" : "RecurringSubscription",
           "winbackOffers" : [
@@ -73,7 +73,7 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "1.99",
+          "displayPrice" : "12.99",
           "familyShareable" : false,
           "groupNumber" : 1,
           "internalID" : "6902DDD0",
@@ -92,7 +92,7 @@
           ],
           "productID" : "Month_Sub_Kelee",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Month_Sub_Kelee",
+          "referenceName" : "월간 구독",
           "subscriptionGroupID" : "BE8C426B",
           "type" : "RecurringSubscription",
           "winbackOffers" : [

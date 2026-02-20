@@ -9,10 +9,13 @@ import SwiftUI
 
 struct TransactionView: View {
     @EnvironmentObject var transactionManager: TransactionManager
-    @Environment(\.dismiss) var dismiss
+    @EnvironmentObject var appState: AppState
+    @EnvironmentObject var networkMonitor: NetworkMonitor
+    
     @State private var showAlert = false
     @State private var title: String = ""
     @State private var message: String = ""
+    @State private var showNetworkPopup: Bool = false
     
     var body: some View {
         ZStack {
@@ -21,7 +24,7 @@ struct TransactionView: View {
                 HStack {
                     Spacer()
                     GlassDrawToolButton(systemName: "x.circle.fill", myToolType: nil) {
-                        dismiss()
+                        appState.currentView = .login
                     }
                 }
                 VStack(spacing: 12) {
@@ -66,9 +69,11 @@ struct TransactionView: View {
                     }
                 }
                 .padding(20)
-            
+                
                 Button(action: {
-                    transactionManager.subscribeButtonTapped(selectedButton:"monthly")
+                    if networkMonitor.isConnected {
+                        transactionManager.subscribeButtonTapped(selectedButton:"monthly")
+                    }
                 }, label: {
                     GlassContainer {
                         HStack(spacing: 15) {
@@ -86,7 +91,9 @@ struct TransactionView: View {
                 .padding(.vertical, 10)
                 
                 Button(action: {
-                    transactionManager.subscribeButtonTapped(selectedButton:"yearly")
+                    if networkMonitor.isConnected {
+                        transactionManager.subscribeButtonTapped(selectedButton:"yearly")
+                    }
                 }, label: {
                     GlassContainer {
                         HStack(spacing: 15) {
@@ -112,16 +119,39 @@ struct TransactionView: View {
                 })
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
+                
+                Button(action: {
+                    if networkMonitor.isConnected {
+                        Task {
+                            await transactionManager.restorePurchases()
+                        }
+                    }
+                }, label: {
+                    Text("구매 내역 복구")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .padding()
+                })
+                
             }
+        }
+        .alert("알림", isPresented: $showNetworkPopup) {
+            Button("확인", role: .none) { }
+        } message: {
+            Text("네트워크 연결을 확인해 주세요.")
         }
         .onAppear {
             Task {
                 await transactionManager.loadProducts()
             }
+            showNetworkPopup = !networkMonitor.isConnected
         }
-        .onChange(of: transactionManager.hasUnlockedPro) { oldValue, newValue in
-            if newValue {
-                dismiss()
+        .onChange(of: networkMonitor.isConnected) { oldValue, newValue in
+            showNetworkPopup = newValue
+        }
+        .onChange(of: transactionManager.purchasedProductIDs) { oldValue, newValue in
+            if newValue.count > 0 {
+                appState.currentView = .fileSelect
             }
         }
     }

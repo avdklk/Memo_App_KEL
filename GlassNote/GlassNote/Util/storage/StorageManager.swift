@@ -11,35 +11,86 @@ class StorageManager {
     static let instance = StorageManager()
     
     //collection
+    private let SUBSCRIBE = "SUBSCRIBE"
     private let USER = "USER"
     
+    private let db = Firestore.firestore()
     
+    private init() {
+        let _ = Auth.auth().currentUser
+    }
     
-    let db = Firestore.firestore()
-    
-    func addSubscriberData(userID: String, subscriber:SubscribeData) {
-        db.collection(USER).document(userID).setData(["Date": subscriber.Date,
-                                                 "Key": subscriber.Key,
-                                                 "Month": subscriber.Month,
-                                                 "Year": subscriber.Year]) { error in
-            if let error = error {
-                print("There was an issue saving data to firestore, \(error)")
+    func addSubscriberData(userID: String, subscriber: SubscribeData) {
+        let data: [String: Any] = [
+            "Date": subscriber.Date,
+            "Key": subscriber.Key,
+            "Month": subscriber.Month,
+            "Year": subscriber.Year
+        ]
+        
+        db.collection(SUBSCRIBE).document(userID).setData(data) { result in
+            if let error = result?.localizedDescription {
+                print("addSubscriberData Error: \(error)")
+            }
+        }
+    }
+
+    func loadSubscriberData(userID: String, complete: @escaping (SubscribeData?) -> Void) {
+        let reference = db.collection(SUBSCRIBE).document(userID)
+        
+        reference.getDocument { document, error in
+            if let rawData = document?.data() {
+                complete(rawData.toModel(SubscribeData.self))
             } else {
-                print("Successfully saved data.")
+                complete(nil)
+            }
+        }
+    }
+
+    func deleteDocument(userID: String) {
+        db.collection(SUBSCRIBE).document(userID).delete { error in
+            if let error = error {
+                print("Error removing document: \(error.localizedDescription)")
+            } else {
+                print("Document successfully removed!")
             }
         }
     }
     
-    func loadSubscriberData(userID: String, complete:@escaping (SubscribeData?) -> Void) {
+    func addUserInfo(userID: String, userInfo: UserInfoData) async {
+        let data: [String: Any] = [
+            "Email": userInfo.Email,
+            "Name": userInfo.Name
+        ]
+        
+        do {
+            try await db.collection(USER).document(userID).setData(data)
+            print("Successfully saved user info.")
+        } catch {
+            print("addUserInfo Error: \(error)")
+        }
+    }
+
+    func loadUserInfo(userID: String) async -> UserInfoData? {
         let reference = db.collection(USER).document(userID)
-        reference.getDocument { querySnapshot, err in
-            guard let document = querySnapshot else {
-                print("Error getting documents: \(err?.localizedDescription ?? "nil")")
-                return
-            }
+        
+        do {
+            let document = try await reference.getDocument()
             let rawData = document.data()
-            let subscribeData = rawData?.toModel(SubscribeData.self)
-            complete(subscribeData)
+            return rawData?.toModel(UserInfoData.self)
+        } catch {
+            print("Error getting user document: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    func signOut() -> Bool {
+        do {
+            try Auth.auth().signOut()
+            return true
+        } catch let signOutError as NSError {
+            print("로그아웃 오류: \(signOutError.localizedDescription)")
+            return false
         }
     }
 }

@@ -11,8 +11,8 @@ extension View {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     
-    func explainTooltip(isPresented: Binding<Bool>, title: String) -> some View {
-        self.popover(isPresented: isPresented, arrowEdge: .top) {
+    func explainTooltip(isPresented: Binding<Bool>, title: String, edge: Edge = .top) -> some View {
+        self.popover(isPresented: isPresented, arrowEdge: edge) {
             Text("\(title)")
                 .multilineTextAlignment(.center)
                 .frame(width: 180, alignment: .center)

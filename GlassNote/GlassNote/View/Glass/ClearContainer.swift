@@ -22,14 +22,7 @@ struct ClearContainer<Content: View>: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
                         .strokeBorder(
-                            LinearGradient(
-                                colors: [
-                                    Color.white.opacity(0.7),
-                                    Color.white.opacity(0.1)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
+                            Color.white,
                             lineWidth: 1
                         )
                 )

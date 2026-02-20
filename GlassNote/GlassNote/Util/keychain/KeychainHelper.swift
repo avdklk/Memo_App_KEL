@@ -9,7 +9,7 @@ import Security
 
 class KeychainHelper {
     
-    static let standard = KeychainHelper()
+    static let instance = KeychainHelper()
     private init() {}
     
     // MARK: - 1. 저장 및 수정 (Upsert)
