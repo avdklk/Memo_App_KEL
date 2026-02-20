@@ -26,9 +26,10 @@ class NetworkMonitor: ObservableObject {
     func startMonitoring() {
         monitor.start(queue: queue)
         monitor.pathUpdateHandler = { [weak self] path in
-            self?.isConnected = path.status == .satisfied
-            self?.getConnectionType(path)
-            
+            DispatchQueue.main.async {
+                self?.isConnected = path.status == .satisfied
+                self?.getConnectionType(path)
+            }
             if path.status == .satisfied {
                 print("연결됨: \(path.debugDescription)")
             } else {

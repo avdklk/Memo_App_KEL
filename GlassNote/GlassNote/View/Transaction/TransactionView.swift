@@ -8,7 +8,7 @@ import StoreKit
 import SwiftUI
 
 struct TransactionView: View {
-    @EnvironmentObject var transactionManager: TransactionManager
+    @StateObject var transactionManager: TransactionManager = TransactionManager.instance
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var networkMonitor: NetworkMonitor
     
@@ -24,7 +24,7 @@ struct TransactionView: View {
                 HStack {
                     Spacer()
                     GlassDrawToolButton(systemName: "x.circle.fill", myToolType: nil) {
-                        appState.currentView = .login
+                        appState.currentView = .fileSelect
                     }
                 }
                 VStack(spacing: 12) {
@@ -147,7 +147,7 @@ struct TransactionView: View {
             showNetworkPopup = !networkMonitor.isConnected
         }
         .onChange(of: networkMonitor.isConnected) { oldValue, newValue in
-            showNetworkPopup = newValue
+            showNetworkPopup = !newValue
         }
         .onChange(of: transactionManager.purchasedProductIDs) { oldValue, newValue in
             if newValue.count > 0 {

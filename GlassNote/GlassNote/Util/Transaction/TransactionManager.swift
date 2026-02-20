@@ -18,7 +18,6 @@ class TransactionManager: ObservableObject {
     
     @Published private(set) var productDict: [String : Product] = [:]
     @Published private(set) var purchasedProductIDs = Set<String>()
-    @Published var isLoading: Bool = false
    
     private let productIds = [monthSubId, yearSubId]
     private var productsLoaded = false
@@ -59,10 +58,6 @@ class TransactionManager: ObservableObject {
     
     // MARK: - 구매 요청
     func purchase(_ product: Product) async throws {
-        self.isLoading = true
-        // defer: 함수가 종료될 때 무조건 실행 (로딩 종료)
-        defer { self.isLoading = false }
-        
         let result = try await product.purchase()
         
         switch result {

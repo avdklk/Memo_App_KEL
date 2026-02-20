@@ -16,5 +16,6 @@ enum KeyConstants {
     
     enum UserDefaults: String {
         case appleIdentifier = "appleIdentifier"
+        case icloud = "icloud"
     }
 }

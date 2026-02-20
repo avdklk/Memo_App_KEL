@@ -11,7 +11,6 @@ import SwiftUI
 struct GlassNoteApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     let persistenceController = PersistenceController.shared
-    @StateObject private var transactionManager = TransactionManager.instance
     @StateObject var appState = AppState.instance
     @StateObject var networkMonitor = NetworkMonitor.shared
     
@@ -24,17 +23,14 @@ struct GlassNoteApp: App {
             case .fileSelect:
                 FileSelete()
                     .environment(\.managedObjectContext, persistenceController.container.viewContext)
-                    .environmentObject(transactionManager)
                     .environmentObject(appState)
                     .environmentObject(networkMonitor)
             case .login:
                 LoginView()
-                    .environmentObject(transactionManager)
                     .environmentObject(appState)
                     .environmentObject(networkMonitor)
             case .transaction:
                 TransactionView()
-                    .environmentObject(transactionManager)
                     .environmentObject(appState)
                     .environmentObject(networkMonitor)
             }

@@ -11,12 +11,12 @@ import _AuthenticationServices_SwiftUI
 import FirebaseAuth
 
 struct LoginView: View {
-    @EnvironmentObject var transactionManager: TransactionManager
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var networkMonitor: NetworkMonitor
-
+    
     @State private var currentNonce: String?
-    @State private var showNetworkPopup: Bool = false
+    @State private var showPopup: Bool = false
+    @State private var message: String = "네트워크 연결을 확인하세요."
     
     var body: some View {
         ZStack {
@@ -91,16 +91,18 @@ struct LoginView: View {
                     .padding(.horizontal, 20)
                 }
             }
-        }.alert("알림", isPresented: $showNetworkPopup) {
+        }.alert("알림", isPresented: $showPopup) {
             Button("확인", role: .none) { }
         } message: {
-            Text("네트워크 연결을 확인해 주세요.")
+            Text(message)
         }
         .onChange(of: networkMonitor.isConnected) { oldValue, newValue in
-            showNetworkPopup = newValue
+            showPopup = newValue
+            message = "네트워크 연결을 확인하세요."
         }
         .onAppear {
-            showNetworkPopup = !networkMonitor.isConnected
+            showPopup = !networkMonitor.isConnected
+            message = "네트워크 연결을 확인하세요."
         }
     }
     
@@ -130,24 +132,19 @@ struct LoginView: View {
         Auth.auth().signIn(with: credential) { (authResult, error) in
             if let error = error {
                 print("Firebase 로그인 실패: \(error.localizedDescription)")
+                showPopup = true
+                message = "로그인 실패하였습니다."
                 return
             }
             
-            //                if let user = authResult?.user {
-            if let fullName = appleIDCredential.fullName {
+            if let fullName = appleIDCredential.fullName,
+               let email = appleIDCredential.email{
                 let name = "\(fullName.givenName ?? "") \(fullName.familyName ?? "")"
                 print("사용자 이름: \(name)")
-                
-                if let email = appleIDCredential.email,
-                   let infoData = try? JSONEncoder().encode(UserInfoData(Email: email, Name: name)) {
-                    let _ = KeychainHelper.instance.save(data: infoData, service: Utility.bundleID, account: KeyConstants.Keychain.userInfo.rawValue)
-                    
-                    Task {
-                        await StorageManager.instance.addUserInfo(userID: appleIDCredential.user, userInfo: UserInfoData(Email: email, Name: name))
-                    }
+                Task {
+                    await StorageManager.instance.addUserInfo(userID: appleIDCredential.user, userInfo: UserInfoData(Email: email, Name: name))
                 }
             }
-            //                }
             // 여기에 키체인에서 가져와서 유저 인포 통신하는 코드 만들기
             UserDefaults.standard.set(appleIDCredential.user, forKey: KeyConstants.UserDefaults.appleIdentifier.rawValue)
             
@@ -156,7 +153,7 @@ struct LoginView: View {
     }
     
     private func changeNextView() {
-        if !transactionManager.hasUnlockedPro && !appState.subState {
+        if !appState.subState {
             appState.currentView = .transaction
         } else {
             appState.currentView = .fileSelect

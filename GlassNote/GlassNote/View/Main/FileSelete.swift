@@ -11,19 +11,16 @@ import CoreData
 struct FileSelete: View {
     // Core Data Fetch -> 이게 제일 빡셈 항상 업데이트 해야 합니다.
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Note.updatedAt, ascending: false)],
-        animation: .easeInOut
-    )
+        sortDescriptors: [NSSortDescriptor(keyPath: \Note.updatedAt, ascending: false)],animation: .easeInOut)
     private var notes: FetchedResults<Note>
     
     @Environment(\.managedObjectContext) private var context
-    @EnvironmentObject var transactionManager: TransactionManager
     @EnvironmentObject var appState: AppState
     @EnvironmentObject var networkMonitor: NetworkMonitor
     
     @State private var canDelete: Bool = false
     @State private var selectedNote: Note? = nil
-    @State private var showNetworkTooltip: Bool = false
+    @State private var isCloudOn: Bool = false
     
     var body: some View {
         ZStack {
@@ -35,8 +32,10 @@ struct FileSelete: View {
                         ForEach(notes, id: \.objectID) { note in
                             Button(action: {
                                 if canDelete {
-                                    context.delete(note)
-                                    try? context.save()
+                                    context.perform {
+                                        context.delete(note)
+                                        try? context.save()
+                                    }
                                 } else {
                                     selectedNote = note
                                 }
@@ -60,10 +59,7 @@ struct FileSelete: View {
             NoteDetailView(note: note)
         }
         .onAppear {
-            showNetworkTooltip = networkMonitor.isConnected
-        }
-        .onChange(of: networkMonitor.isConnected) { oldValue, newValue in
-            showNetworkTooltip = newValue
+            isCloudOn = UserDefaults.standard.bool(forKey: KeyConstants.UserDefaults.icloud.rawValue)
         }
     }
 }
@@ -80,32 +76,51 @@ extension FileSelete {
             Spacer()
             
             if canDelete {
-                GlassToolButton(systemName: "circle.fill", title: "Done", isSelected: true) {
+                GlassToolButton(systemName: "circle.fill", title: "Done", isSelected: true,action: {
                     canDelete = false
-                }
+                })
             } else {
                 Menu {
-                    if !transactionManager.hasUnlockedPro && notes.count > 0 && !appState.subState {
-                        GlassToolButton(systemName: "crown", title: "subscribe", isSelected: true, isHighlight: showNetworkTooltip) {
+                    if notes.count == 0 {
+                        GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true, action: {
+                            context.perform {
+                                let newNote = Note(context: context)
+                                newNote.id = UUID()
+                                newNote.title = "New Note"
+                                newNote.previewText = ""
+                                newNote.updatedAt = Date()
+                                try? context.save()
+                            }
+                        })
+                    } else if !appState.subState {
+                        GlassToolButton(systemName: "crown", title: "Subscribe \(networkMonitor.isConnected ? "" : "(No Network)")", isSelected: true, action: {
                             if networkMonitor.isConnected {
                                 appState.currentView = .login
                             }
-                        }
-                        .explainTooltip(isPresented: $showNetworkTooltip, title: "구독은 네트워크 연결 후 가능합니다.\n네트워크 상태를 확인해주세요.", edge: .bottom)
+                        })
                     } else {
-                        GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true) {
-                            let newNote = Note(context: context)
-                            newNote.id = UUID()
-                            newNote.title = "New Note"
-                            newNote.previewText = ""
-                            newNote.updatedAt = Date()
-                            try? context.save()
-                        }
+                        GlassToolButton(systemName: "plus.circle", title: "New", isSelected: true, action: {
+                            context.perform {
+                                let newNote = Note(context: context)
+                                newNote.id = UUID()
+                                newNote.title = "New Note"
+                                newNote.previewText = ""
+                                newNote.updatedAt = Date()
+                                try? context.save()
+                            }
+                        })
+                        
+                        GlassOnOffButton(systemName: "icloud", title: "iCloud \(isCloudOn ? "(ON)" : "(OFF)")", isSelected: true, isOn: isCloudOn, action: {
+                            let isSync = UserDefaults.standard.bool(forKey: KeyConstants.UserDefaults.icloud.rawValue)
+                            isCloudOn = !isSync
+                            UserDefaults.standard.set(isCloudOn, forKey: KeyConstants.UserDefaults.icloud.rawValue)
+                            PersistenceController.shared.setupContainer()
+                        })
                     }
-                    GlassToolButton(systemName: "xmark", title: "Delete", isSelected: true) {
+                    GlassToolButton(systemName: "xmark", title: "Delete", isSelected: true, action :{
                         canDelete = true
-                    }
-                
+                    })
+                    
                 } label: {
                     GlassToolButton(systemName: "ellipsis.circle", title: "Menu", isSelected: true) {}
                 }
@@ -139,12 +154,14 @@ extension FileSelete {
                 .padding()
             
             Button("Create") {
-                let newNote = Note(context: context)
-                newNote.id = UUID()
-                newNote.title = "New Note"
-                newNote.previewText = ""
-                newNote.updatedAt = Date()
-                try? context.save()
+                context.perform {
+                    let newNote = Note(context: context)
+                    newNote.id = UUID()
+                    newNote.title = "New Note"
+                    newNote.previewText = ""
+                    newNote.updatedAt = Date()
+                    try? context.save()
+                }
             }
             .padding()
         }

@@ -41,9 +41,22 @@
 		374ABC5E2ECB532C00674E3D /* GlassNote.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GlassNote.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		07EC23722F481E7000B11660 /* Exceptions for "GlassNote" folder in "GlassNote" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 374ABC5D2ECB532C00674E3D /* GlassNote */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		374ABC602ECB532C00674E3D /* GlassNote */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				07EC23722F481E7000B11660 /* Exceptions for "GlassNote" folder in "GlassNote" target */,
+			);
 			path = GlassNote;
 			sourceTree = "<group>";
 		};
@@ -342,6 +355,7 @@
 				DEVELOPMENT_TEAM = ZA9H555RPC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GlassNote/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "사진 촬영을 위해 카메라 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -378,6 +392,7 @@
 				DEVELOPMENT_TEAM = ZA9H555RPC;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = GlassNote/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "사진 촬영을 위해 카메라 권한이 필요합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

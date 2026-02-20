@@ -44,10 +44,9 @@ struct ContentView: View {
                 GlassToolButton(
                     systemName: "arrow.right.circle.fill",
                     title: "Start Note",
-                    isSelected: true
-                ) {
+                    isSelected: true, action :{
                     appState.currentView = .fileSelect
-                }
+                })
             }
         }
     }

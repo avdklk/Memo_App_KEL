@@ -90,10 +90,10 @@ extension NoteDetailView {
     private var header: some View {
         HStack(spacing: 16) {
             //back 버튼
-            GlassToolButton(systemName: "chevron.left", title: "Back", isSelected: false) {
+            GlassToolButton(systemName: "chevron.left", title: "Back", isSelected: false, action: {
                 saveNote()
                 dismiss()
-            }
+            })
             
             Spacer()
             
@@ -122,9 +122,9 @@ extension NoteDetailView {
             Spacer()
             
             //저장 버튼
-            GlassToolButton(systemName: "square.and.arrow.down", title: "Save", isSelected: true) {
+            GlassToolButton(systemName: "square.and.arrow.down", title: "Save", isSelected: true, action: {
                 saveNote(showToast: true)
-            }
+            })
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 10)
@@ -156,7 +156,7 @@ extension NoteDetailView {
     }
     
     //노트 코어 데이터 저장
-    private func saveNote(showToast: Bool = false) {
+    @MainActor private func saveNote(showToast: Bool = false) {
         note.title = editingTitle
         note.updatedAt = Date()
         

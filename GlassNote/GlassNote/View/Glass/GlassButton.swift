@@ -8,6 +8,46 @@
 import SwiftUI
 
 
+//struct GlassToolButton: View {
+//    let systemName: String
+//    let title: String
+//    var isSelected: Bool = false
+//    var isHighlight: Bool = false
+//    var action: () -> Void
+//    
+//    var body: some View {
+//        Button(action: action) {
+//            HStack(spacing: 8) {
+//                Image(systemName: systemName)
+//                    .foregroundStyle(isHighlight ? .red : .white)
+//                    .font(.system(size: 14, weight: .semibold))
+//                Text(title)
+//                    .foregroundStyle(isHighlight ? .red : .white)
+//                    .font(.system(size: 13, weight: .medium))
+//            }
+//            .padding(.horizontal, 14)
+//            .padding(.vertical, 8)
+//            .background(
+//                RoundedRectangle(cornerRadius: 16, style: .continuous)
+//                    .fill(
+//                        isSelected
+//                        ? Color.white.opacity(0.22)
+//                        : Color.white.opacity(0.08)
+//                    )
+//                    .overlay(
+//                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+//                            .strokeBorder(
+//                                Color.white.opacity(isSelected ? 0.6 : 0.2),
+//                                lineWidth: 1
+//                            )
+//                    )
+//            )
+//        }
+//        .buttonStyle(.plain)
+//        .foregroundColor(.white)
+//    }
+//}
+
 struct GlassToolButton: View {
     let systemName: String
     let title: String
@@ -16,7 +56,9 @@ struct GlassToolButton: View {
     var action: () -> Void
     
     var body: some View {
-        Button(action: action) {
+        GeneralToolButton(action: {
+            action()
+        }, content: {
             HStack(spacing: 8) {
                 Image(systemName: systemName)
                     .foregroundStyle(isHighlight ? .red : .white)
@@ -25,25 +67,6 @@ struct GlassToolButton: View {
                     .foregroundStyle(isHighlight ? .red : .white)
                     .font(.system(size: 13, weight: .medium))
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(
-                        isSelected
-                        ? Color.white.opacity(0.22)
-                        : Color.white.opacity(0.08)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16, style: .continuous)
-                            .strokeBorder(
-                                Color.white.opacity(isSelected ? 0.6 : 0.2),
-                                lineWidth: 1
-                            )
-                    )
-            )
-        }
-        .buttonStyle(.plain)
-        .foregroundColor(.white)
+        })
     }
 }
